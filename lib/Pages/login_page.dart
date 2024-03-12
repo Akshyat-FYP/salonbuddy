@@ -1,15 +1,31 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
+import 'package:barberboss/Pages/forget_Password.dart';
+import 'package:barberboss/Pages/register.dart';
 import 'package:flutter/material.dart';
+import 'package:barberboss/Components/My_textfeild.dart';
+import 'package:barberboss/Components/my_button.dart';
+import 'package:barberboss/Pages/home.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class login extends StatelessWidget {
+  login({super.key});
+  //text editing controller
+  final usernamecontroller = TextEditingController();
+  final passwordcontroller = TextEditingController();
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+  //sign user in
+  void signUserIn(BuildContext context) {
+    // Add your authentication logic here
 
-class _LoginPageState extends State<LoginPage> {
+    // Navigate to the second page on successful sign-in
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              MyHomePage()), // Replace with the actual name of your second page class
+    );
+  }
+
+  //Register
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,32 +33,114 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: Center(
           child: Column(children: [
-            //hello again
+            const SizedBox(
+              height: 50,
+            ),
+            //logo
+            const Icon(
+              Icons.lock,
+              size: 100,
+            ),
+            // Image(image: AssetImage('images/BarberBoss.png')),
+            const SizedBox(height: 50),
+            //welcome back you've been missed
             Text(
-              'Hello Again',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              "Welcome back you've been missed!",
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: 16,
+              ),
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              'Welcome back You\'ve been missed',
-              style: TextStyle(fontSize: 20),
-            ),
+            const SizedBox(height: 25),
 
-            // Email textfield
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  border: Border.all(color: Colors.white)),
-              child: TextField(
-                decoration: InputDecoration(border: InputBorder.none),
+            //username textfield
+            MyTextFeild(
+              controller: usernamecontroller,
+              hintText: "Username",
+              obscureText: false,
+            ),
+            //password textfield
+            const SizedBox(height: 25),
+            MyTextFeild(
+              controller: passwordcontroller,
+              hintText: "Password",
+              obscureText: true,
+            ),
+            const SizedBox(height: 25),
+            // forgot password?
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to the Forgot Password page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPasswordPage()),
+                      );
+                    },
+                    child: Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            //password textfiekd
-            //sigb in bytton
-            //not a member> register now
+            const SizedBox(height: 25),
+            //sign in button
+            MyButton(
+              onTap: () => signUserIn(context),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigate to the Register page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Register",
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 16,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(
+              height: 50,
+            )
+            // or continue with
+            //google +apple sign in button
+            // not a member? register now
           ]),
         ),
       ),
