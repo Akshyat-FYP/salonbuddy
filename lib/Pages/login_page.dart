@@ -41,7 +41,10 @@ class login extends StatelessWidget {
               Icons.lock,
               size: 100,
             ),
-            // Image(image: AssetImage('images/BarberBoss.png')),
+            // Image(
+            //     image: NetworkImage(
+            //         'https://media.istockphoto.com/id/637696304/photo/patan.jpg?s=612x612&w=0&k=20&c=-53aSTGBGoOOqX5aoC3Hs1jhZ527v3Id_xOawHHVPpg=')),
+            // Image(image: AssetImage('assets/images/logo.jpg')),
             const SizedBox(height: 50),
             //welcome back you've been missed
             Text(
@@ -136,11 +139,8 @@ class login extends StatelessWidget {
             ),
 
             const SizedBox(
-              height: 50,
+              height: 20,
             )
-            // or continue with
-            //google +apple sign in button
-            // not a member? register now
           ]),
         ),
       ),

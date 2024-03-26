@@ -1,41 +1,34 @@
-// map_page.dart
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
-class MapPage extends StatefulWidget {
-  @override
-  _MapPageState createState() => _MapPageState();
-}
-
-class _MapPageState extends State<MapPage> {
-  GoogleMapController? _controller;
-
+class MapsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Map Page'),
+        title: Text('OpenStreetView'),
       ),
-      body: GoogleMap(
-        onMapCreated: (controller) {
-          setState(() {
-            _controller = controller;
-          });
-        },
-        initialCameraPosition: CameraPosition(
-          target: LatLng(37.7749, -122.4194), // San Francisco coordinates
-          zoom: 12.0,
-        ),
-        markers: {
-          Marker(
-            markerId: MarkerId('San Francisco'),
-            position: LatLng(37.7749, -122.4194),
-            infoWindow: InfoWindow(
-              title: 'San Francisco',
-            ),
-          ),
-        },
+      body: WebView(
+        initialUrl: 'https://www.openstreetmap.org/',
+        javascriptMode: JavascriptMode.unrestricted,
       ),
+    );
+  }
+}
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'OpenStreetView Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MapsPage(),
     );
   }
 }

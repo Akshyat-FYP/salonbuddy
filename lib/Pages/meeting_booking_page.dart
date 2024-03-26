@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// import 'package:table_calendar/table_calendar.dart';
+// import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 
 class MeetingBookingPage extends StatefulWidget {
   @override
@@ -7,12 +9,12 @@ class MeetingBookingPage extends StatefulWidget {
 
 class _MeetingBookingPageState extends State<MeetingBookingPage> {
   late DateTime _selectedDate;
-  late TimeOfDay _selectedTime;
+  late DateTime _selectedTime;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
@@ -27,12 +29,18 @@ class _MeetingBookingPageState extends State<MeetingBookingPage> {
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: TimeOfDay.fromDateTime(_selectedTime),
     );
 
-    if (pickedTime != null && pickedTime != _selectedTime) {
+    if (pickedTime != null) {
       setState(() {
-        _selectedTime = pickedTime;
+        _selectedTime = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
       });
     }
   }
@@ -50,7 +58,7 @@ class _MeetingBookingPageState extends State<MeetingBookingPage> {
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    _selectedTime = TimeOfDay.now();
+    _selectedTime = DateTime.now();
   }
 
   @override
@@ -72,6 +80,7 @@ class _MeetingBookingPageState extends State<MeetingBookingPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Calendar view button
             ElevatedButton(
               onPressed: () => _selectDate(context),
               child: Text(
@@ -79,10 +88,11 @@ class _MeetingBookingPageState extends State<MeetingBookingPage> {
               ),
             ),
             SizedBox(height: 20),
+            // Clock view button
             ElevatedButton(
               onPressed: () => _selectTime(context),
               child: Text(
-                'Selected Time: ${_selectedTime.format(context)}',
+                'Selected Time: ${_selectedTime.toLocal().toLocal()}',
               ),
             ),
             SizedBox(height: 20),
@@ -95,10 +105,4 @@ class _MeetingBookingPageState extends State<MeetingBookingPage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: MeetingBookingPage(),
-  ));
 }

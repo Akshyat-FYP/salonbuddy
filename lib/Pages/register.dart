@@ -59,12 +59,27 @@ class RegisterPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
             ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    enabled: false,
+                    decoration: InputDecoration(
+                      labelText: 'Photo',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.photo),
+                  onPressed: () {},
+                ),
+              ],
+            ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Add logic to handle registration
-                // You can implement your own functionality here
-              },
+              onPressed: () {},
               child: Text('Register'),
             ),
           ],
