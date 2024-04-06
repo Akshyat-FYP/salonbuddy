@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "barberboss" "\0"
+            VALUE "FileDescription", "salonbuddy" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "barberboss" "\0"
+            VALUE "InternalName", "salonbuddy" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "barberboss.exe" "\0"
-            VALUE "ProductName", "barberboss" "\0"
+            VALUE "OriginalFilename", "salonbuddy.exe" "\0"
+            VALUE "ProductName", "salonbuddy" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

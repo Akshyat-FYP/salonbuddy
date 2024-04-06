@@ -1,12 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
+from django.utils.translation import gettext_lazy as _
+from django.dispatch import receiver
+from django.contrib.auth import get_user_model
+
 # Create your models here.
 
 class User(AbstractUser):
     username = models.CharField(max_length =100)
     email = models.EmailField(unique=True)
-    
+    ROLE_CHOICES = [
+        ('barber', 'Barber'),
+        ('customer', 'Customer'),
+        ('admin', 'Admin'),
+    ]
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -33,70 +44,63 @@ def save_user_profile(sender,instance,**kwargs):
 post_save.connect(create_user_profile, sender=User)
 post_save.connect(save_user_profile,sender=User)
 
-# Models for FYP
+class Barber(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='barber')
 
-# from django.db import models
+User = get_user_model()
 
-# class User(models.Model):
-#     ROLE_CHOICES = [
-#         ('barber', 'Barber'),
-#         ('customer', 'Customer'),
-#         ('admin', 'Admin'),
-#     ]
+class Barbershop(models.Model):
+    user_id = models.IntegerField()
+    name = models.CharField(max_length=100)
+    address = models.TextField()
+    in_service = models.BooleanField(default=True)  # New field
 
-#     username = models.CharField(max_length=100)
-#     password = models.CharField(max_length=100)
-#     email = models.EmailField()
-#     phone = models.CharField(max_length=15)
-#     address = models.TextField()
-#     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Check if the barbershop is being created for the first time
+        if not self.pk:
+            # Create default styles of cut for the new barbershop
+            StyleOfCut.create_default_styles(self)
+class StyleOfCut(models.Model):
+    DEFAULT_STYLES = [
+        {'name': 'Hair Cut', 'price': 200},
+        {'name': 'Designed Hair Cut', 'price': 350},
+        {'name': 'Beard Cut', 'price': 120},
+        {'name': 'Beard Trimming', 'price': 150},
+        {'name': 'Head Massage ', 'price': 200},
+        {'name': 'Hair Shampoo', 'price': 120},
+        {'name': 'Face Bleech', 'price': 700},
+        {'name': 'Facial', 'price': 1000},
+        {'name': 'Face Wash', 'price': 400},
+        {'name': 'Hair Color Black', 'price': 500},
+        {'name': 'Threading', 'price': 120},
+        {'name': 'Hair Highlight', 'price': 1000},
+        {'name': 'Straightining Hair', 'price': 1800},
+        {'name': 'Hair Iron', 'price': 700},
+        {'name': 'Hair Treatment', 'price': 650},
+        {'name': 'Hair Deadlock', 'price': 12000},
+        {'name': 'Hair Curl', 'price': 3500},
+        {'name': 'Hair Threading', 'price': 1800},
 
-# class Service(models.Model):
-#     service_name = models.CharField(max_length=100)
-#     description = models.TextField()
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
+    ]
+    
+    barbershop = models.ForeignKey(Barbershop, on_delete=models.CASCADE, related_name='styles_of_cut')
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
 
-# class Booking(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-#     barber_id = models.PositiveIntegerField()  # Assuming barber ID is just stored as a number
-#     booking_date_time = models.DateTimeField()
-#     status = models.CharField(max_length=20)
-#     rating = models.IntegerField(null=True, blank=True)
+    @classmethod
+    def create_default_styles(cls, barbershop):
+        for default_style in cls.DEFAULT_STYLES:
+            cls.objects.create(barbershop=barbershop, **default_style)
 
-# class History(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-#     barber_id = models.PositiveIntegerField()  # Assuming barber ID is just stored as a number
-#     booking_date_time = models.DateTimeField()
-#     rating = models.IntegerField()
+class Appointment(models.Model):
+    barbershop = models.ForeignKey(Barbershop, on_delete=models.CASCADE, related_name='appointments')
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    style_of_cut = models.ForeignKey(StyleOfCut, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
+    date_time = models.DateTimeField()
+    verified = models.BooleanField(default=False)  # Added verified field
 
-# class Notification(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     message = models.TextField()
-#     datetime = models.DateTimeField()
-
-# class ServiceStatus(models.Model):
-#     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-#     status = models.CharField(max_length=20)
-
-# class BarberShop(models.Model):
-#     name = models.CharField(max_length=100)
-#     location = models.TextField()
-
-# class Price(models.Model):
-#     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-#     barber_shop = models.ForeignKey(BarberShop, on_delete=models.CASCADE)
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
-
-# class Report(models.Model):
-#     name = models.CharField(max_length=100)
-#     description = models.TextField()
-#     generated_datetime = models.DateTimeField()
-
-# class Coupon(models.Model):
-#     code = models.CharField(max_length=50, unique=True)
-#     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-
-#     def __str__(self):
-#         return self.code
+    def __str__(self):
+        # Return a string representation of the appointment
+        return f"Appointment at {self.date_time} for {self.customer}"

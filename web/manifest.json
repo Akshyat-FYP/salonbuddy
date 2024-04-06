@@ -1,6 +1,6 @@
 {
-    "name": "barberboss",
-    "short_name": "barberboss",
+    "name": "salonbuddy",
+    "short_name": "salonbuddy",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

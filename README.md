@@ -1,4 +1,4 @@
-# barberboss
+# salonbuddy
 
 A new Flutter project.
 
