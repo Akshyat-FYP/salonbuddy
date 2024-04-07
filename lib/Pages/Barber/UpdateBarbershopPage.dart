@@ -18,8 +18,8 @@ class UpdateBarbershopPage extends StatefulWidget {
 class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
-  final TextEditingController inServiceController = TextEditingController();
-  bool isLoading = false;
+  bool inService = true; // Default to true
+  bool isLoading = true; // Initially set to true to indicate loading
 
   @override
   void initState() {
@@ -27,6 +27,7 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
     fetchBarbershopDetails();
   }
 
+  // Fetch barbershop details from the API
   Future<void> fetchBarbershopDetails() async {
     try {
       final apiUrl =
@@ -41,7 +42,8 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
         setState(() {
           nameController.text = data['name'];
           addressController.text = data['address'];
-          inServiceController.text = data['in_service'].toString();
+          inService = data['in_service'];
+          isLoading = false; // Set loading to false once data is fetched
         });
       } else {
         throw Exception(
@@ -52,17 +54,18 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
     }
   }
 
+  // Update barbershop details
   Future<void> updateBarbershop() async {
     setState(() {
       isLoading = true;
     });
 
     final apiUrl =
-        'http://192.168.10.69:8000/api/barbershops/${widget.barbershopId}/';
+        'http://192.168.10.69:8000/api/barbershops/${widget.barbershopId}/update/';
     final Map<String, dynamic> updatedData = {
       'name': nameController.text,
       'address': addressController.text,
-      'in_service': inServiceController.text == 'true',
+      'in_service': inService,
     };
 
     try {
@@ -98,37 +101,46 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
       appBar: AppBar(
         title: Text('Update Barbershop'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+      body: isLoading // Show loading indicator while fetching data
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Name'),
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    controller: addressController,
+                    decoration: InputDecoration(labelText: 'Address'),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: inService,
+                        onChanged: (newValue) {
+                          setState(() {
+                            inService = newValue!;
+                          });
+                        },
+                      ),
+                      Text('In Service'),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      updateBarbershop();
+                    },
+                    child: Text('Update Barbershop'),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: addressController,
-              decoration: InputDecoration(labelText: 'Address'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: inServiceController,
-              decoration: InputDecoration(labelText: 'In Service (true/false)'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                updateBarbershop();
-              },
-              child: isLoading
-                  ? CircularProgressIndicator()
-                  : Text('Update Barbershop'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

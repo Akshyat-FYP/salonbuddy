@@ -94,7 +94,7 @@ class _BHomePageState extends State<BHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => UpdateBarbershopPage(
-          barbershop: barbershop,
+          barbershopId: barbershop,
           accessToken: widget.accessToken,
         ),
       ),

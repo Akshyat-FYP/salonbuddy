@@ -110,7 +110,20 @@ def get_barbershop_by_user(request, user_id):
         return Response(serializer.data)
     except Barbershop.DoesNotExist:
         return Response({'error': 'Barbershop not found'}, status=404)
-    
+
+class BarbershopDetailView(RetrieveAPIView):
+    serializer_class = BarbershopSerializer
+
+    def get_queryset(self):
+        # Get the barbershop ID from the URL
+        barbershop_id = self.kwargs['pk']
+        # Filter the queryset to retrieve only the specific barbershop
+        return Barbershop.objects.filter(pk=barbershop_id)
+
+class InServiceBarbershopListView(generics.ListAPIView):
+    queryset = Barbershop.objects.filter(in_service=True)
+    serializer_class = BarbershopSerializer
+
 class StyleOfCutDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = StyleOfCut.objects.all()
     serializer_class = StyleOfCutSerializer

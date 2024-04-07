@@ -32,7 +32,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
   Future<void> fetchStylesOfCut() async {
     try {
       final apiUrl =
-          'http://192.168.10.69:8000/api/barbershops/${widget.barbershopId}/styles_of_cut/';
+          'http://192.168.10.69:8000/api/barbershops/${widget.barbershopId}/style-of-cuts/';
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {'Authorization': 'Bearer ${widget.accessToken}'},

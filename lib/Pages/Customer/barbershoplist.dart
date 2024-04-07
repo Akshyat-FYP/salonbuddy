@@ -24,7 +24,8 @@ class _BarbershopListPageState extends State<BarbershopListPage> {
 
   Future<void> fetchBarbershops() async {
     try {
-      final apiUrl = 'http://192.168.10.69:8000/api/barbershops/';
+      final apiUrl =
+          'http://192.168.10.69:8000/api/barbershops/in-service-barbershops/';
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {'Authorization': 'Bearer ${widget.accessToken}'},
