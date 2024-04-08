@@ -144,7 +144,7 @@ REST_FRAMEWORK = { 'DEFAULT_AUTHENTICATION_CLASSES': (
 'rest_framework_simplejwt.authentication.JWTAuthentication', )
 }
 SIMPLE_JWT = {
-'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5), 'REFRESH_TOKEN_LIFETIME': timedelta(days=50), 'ROTATE_REFRESH_TOKENS': True, 'BLACKLIST_AFTER_ROTATION': True, 'UPDATE_LAST_LOGIN': False,
+'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50), 'REFRESH_TOKEN_LIFETIME': timedelta(days=50), 'ROTATE_REFRESH_TOKENS': True, 'BLACKLIST_AFTER_ROTATION': True, 'UPDATE_LAST_LOGIN': False,
     'ALGORITHM': 'HS256',
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
@@ -163,3 +163,10 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp', 'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5), 'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# EMAIL_USE_TLS = True  
+# EMAIL_HOST = 'smtp.gmail.com'  
+# EMAIL_HOST_USER = 'youremail@gmail.com'  
+# EMAIL_HOST_PASSWORD = 'yourpassword'  
+# EMAIL_PORT = 587  

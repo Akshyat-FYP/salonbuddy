@@ -78,10 +78,20 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'barbershop', 'barber', 'customer', 'style_of_cut', 'date_time','verified']
-        extra_kwargs = {'style_of_cut': {'required': False, 'allow_null': True}}
+        fields = [
+            'id', 'barbershop', 'barber', 'customer', 
+            'style_of_cut', 'date_time', 'verified', 
+            'service_rated', 'rating', 'rating_comment'
+        ]
+        extra_kwargs = {
+            'style_of_cut': {'required': False, 'allow_null': True},
+            'rating': {'required': False},
+            'rating_comment': {'required': False},
+            'service_rated': {'read_only': True}
+        }
     
     def validate_date_time(self, value):
         if value.hour < 9 or value.hour >= 19:
             raise serializers.ValidationError("Appointments can only be booked between 9 AM to 6 PM.")
         return value
+    

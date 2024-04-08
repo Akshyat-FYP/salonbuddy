@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:salonbuddy/Pages/Customer/ratingspage.dart';
 
 class AppointmentsPage extends StatefulWidget {
   final String accessToken;
@@ -56,10 +57,26 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           final DateTime dateTime = DateTime.parse(appointment['date_time']);
           final formattedDateTime =
               '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+          final barbershop = appointment['barbershop']; // Get barbershopId
 
-          return ListTile(
-            title: Text('Appointment ID: ${appointment['id']}'),
-            subtitle: Text('Date and Time: $formattedDateTime'),
+          return GestureDetector(
+            onTap: () {
+              // Navigate to the rating page when tapped
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AppointmentRatingPage(
+                      appointmentId: appointment['id'],
+                      barbershop: barbershop,
+                      accessToken: widget.accessToken // Pass barbershopId
+                      ),
+                ),
+              );
+            },
+            child: ListTile(
+              title: Text('Appointment ID: ${appointment['id']}'),
+              subtitle: Text('Date and Time: $formattedDateTime'),
+            ),
           );
         },
       ),

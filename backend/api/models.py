@@ -4,12 +4,13 @@ from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import validate_email
 # Create your models here.
 
 class User(AbstractUser):
     username = models.CharField(max_length =100)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, validators=[validate_email])
     ROLE_CHOICES = [
         ('barber', 'Barber'),
         ('customer', 'Customer'),
@@ -61,6 +62,7 @@ class Barbershop(models.Model):
         if not self.pk:
             # Create default styles of cut for the new barbershop
             StyleOfCut.create_default_styles(self)
+            
 class StyleOfCut(models.Model):
     DEFAULT_STYLES = [
         {'name': 'Hair Cut', 'price': 200},
@@ -99,8 +101,17 @@ class Appointment(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
     style_of_cut = models.ForeignKey(StyleOfCut, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
     date_time = models.DateTimeField()
-    verified = models.BooleanField(default=False)  # Added verified field
+    verified = models.BooleanField(default=False)
+    service_rated = models.BooleanField(default=False, help_text='Indicates if the service has been rated')
+    rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    rating_comment = models.TextField(null=True, blank=True, help_text='Comments on the service')
 
     def __str__(self):
         # Return a string representation of the appointment
         return f"Appointment at {self.date_time} for {self.customer}"
+
+    @property
+    def is_past_appointment(self):
+        from django.utils import timezone
+        return timezone.now() > self.date_time
+
