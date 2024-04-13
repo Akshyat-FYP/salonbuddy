@@ -6,6 +6,7 @@ import 'package:salonbuddy/Pages/Customer/chomepage.dart';
 import 'package:salonbuddy/Pages/admin/ahomepage.dart';
 import 'package:salonbuddy/Pages/auth/forget_Password.dart';
 import 'package:salonbuddy/Pages/auth/register.dart';
+import 'package:salonbuddy/notification_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -82,6 +83,9 @@ class _LoginPageState extends State<LoginPage> {
           },
         );
       }
+
+      // After successful login, send device token to backend
+      await sendDeviceTokenToBackend(accessToken);
     } else {
       // Handle error
       final dynamic responseData = json.decode(response.body);
@@ -129,10 +133,35 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<void> sendDeviceTokenToBackend(String accessToken) async {
+    // Get the device token
+    String? deviceToken = await NotificationService.getDeviceToken();
+
+    // If device token is available, send it to the backend
+    if (deviceToken != null) {
+      final String apiUrl =
+          'http://192.168.10.69:8000/api/update-device-token/';
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'device_token': deviceToken}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Device token sent to backend successfully');
+      } else {
+        print('Failed to send device token to backend');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[100], // Whitish background color
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -142,52 +171,112 @@ class _LoginPageState extends State<LoginPage> {
                 Icon(
                   Icons.lock,
                   size: 100,
+                  color: const Color.fromARGB(
+                      255, 0, 0, 0), // Icon color changed to blue
                 ),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
                 Text(
-                  "Welcome back you've been missed!",
+                  "Welcome back!",
                   style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 16,
+                    color: const Color.fromARGB(
+                        255, 0, 0, 0), // Text color changed to blue
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 25),
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 25),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 25),
+                SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
                     children: [
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          hintText: "Email",
+                          hintStyle: TextStyle(
+                              color: Colors.grey[600]), // Hint text color
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide:
+                                BorderSide(color: Colors.blue), // Border color
+                          ),
+                          filled: true,
+                          fillColor:
+                              Colors.white, // Text field background color
+                        ),
+                        style: TextStyle(color: Colors.black), // Text color
+                      ),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: "Password",
+                          hintStyle: TextStyle(
+                              color: Colors.grey[600]), // Hint text color
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide:
+                                BorderSide(color: Colors.blue), // Border color
+                          ),
+                          filled: true,
+                          fillColor:
+                              Colors.white, // Text field background color
+                        ),
+                        style: TextStyle(color: Colors.black), // Text color
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ForgotPasswordPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 138, 130, 122),
+                                fontSize: 16,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () => _login(context),
+                        child: Text('Login'),
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 15),
+                          backgroundColor: Color.fromARGB(255, 0, 0, 0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ), // Button color changed to blue
+                        ),
+                      ),
+                      SizedBox(height: 20),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to the Forgot Password page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ForgotPasswordPage(),
+                              builder: (context) => RegisterPage(),
                             ),
                           );
                         },
                         child: Text(
-                          "Forgot Password?",
+                          "Don't have an account? Sign up",
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: Color.fromARGB(255, 146, 132,
+                                132), // Link color changed to blue
                             fontSize: 16,
                             decoration: TextDecoration.underline,
                           ),
@@ -196,44 +285,6 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 25),
-                ElevatedButton(
-                  onPressed: () => _login(context),
-                  child: Text('Login'),
-                ),
-                SizedBox(height: 30),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: GestureDetector(
-                            onTap: () {
-                              // Navigate to the Register page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RegisterPage(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "Register",
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: 16,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
               ],
             ),
           ),

@@ -27,4 +27,5 @@ urlpatterns = [
     path('barbershops/<int:barbershop_id>/appointments/create/', views.AppointmentCreateView.as_view(), name='appointment-create'),
     path('barbershops/<int:barbershop_id>/appointments/<int:pk>/', views.AppointmentDetailView.as_view(), name='appointment-detail'),
     path('verified-appointments/<int:user_id>/', views.VerifiedAppointmentsView.as_view(), name='verified_appointments'),
+    path('update-device-token/', views.UpdateDeviceTokenView.as_view(), name='update_device_token'),
 ]

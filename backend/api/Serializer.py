@@ -11,11 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['full_name', 'bio', 'image', 'verified']
+        fields = ['full_name', 'bio', 'image', 'verified','device_token']
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
-    def get_token(cls, user):
+    def get_token(cls, user, device_token=None):
         token = super().get_token(user)
         profile = user.profile
         token['full_name'] = profile.full_name
@@ -28,6 +28,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['role'] = user.role
         token['address'] = user.address 
         token['phone'] = user.phone 
+        if device_token:
+            token['device_token'] = device_token
         return token
 
 class RegisterSerializer(serializers.ModelSerializer):

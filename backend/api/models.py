@@ -32,6 +32,7 @@ class Profile(models.Model):
     bio= models.CharField(max_length = 300)
     image = models.ImageField(default = "default.jpg", upload_to="user_images")
     verified = models.BooleanField(default = False)
+    device_token = models.CharField(max_length=255, blank=True, null=True)
     def __str__(self):
         return self.full_name
     
@@ -110,8 +111,4 @@ class Appointment(models.Model):
         # Return a string representation of the appointment
         return f"Appointment at {self.date_time} for {self.customer}"
 
-    @property
-    def is_past_appointment(self):
-        from django.utils import timezone
-        return timezone.now() > self.date_time
 

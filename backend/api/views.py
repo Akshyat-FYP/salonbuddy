@@ -11,6 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from pyfcm import FCMNotification
+
 import datetime
 
 class UserDetailView(RetrieveAPIView):
@@ -221,3 +223,26 @@ class VerifiedAppointmentsView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs['user_id']
         return Appointment.objects.filter(customer_id=user_id, verified=True)
+       
+def send_push_notification(token, title, message):
+    push_service = FCMNotification(api_key="AAAAeNJNoGs:APA91bENSuJVL4BXQVYSrky4FBpzHdwzv6WNkh0Gm40aO45_7CGp8TxQWX0mnNKe5y8AyB2k0QcTCH1ynUPOuPeMmABCImjict2I3IiGWuywQkqYF5VNaBK4G7pmtD8w-6yGq_H45Vpr")
+    
+    result = push_service.notify_single_device(
+        registration_id=token,
+        message_title=title,
+        message_body=message
+    )
+    return result
+
+class UpdateDeviceTokenView(APIView):
+    def post(self, request):
+        token = request.data.get('device_token')
+        if not token:
+            return Response({'error': 'Device token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update the user's profile with the device token
+        profile = request.user.profile
+        profile.device_token = token
+        profile.save()
+
+        return Response({'success': 'Device token updated successfully'}, status=status.HTTP_200_OK)
