@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pdfLib;
+import 'package:printing/printing.dart';
 
 class BarberAppointmentsPage extends StatefulWidget {
   final int barbershopId;
@@ -129,6 +132,40 @@ class _BarberAppointmentsPageState extends State<BarberAppointmentsPage> {
   }
 
   Future<void> generatePdfAndView() async {
-    // Implement the PDF generation logic
+    final pdfLib.Document pdf = pdfLib.Document();
+
+    pdf.addPage(
+      pdfLib.Page(
+        build: (context) {
+          return pdfLib.ListView(
+            children: [
+              for (var appointment in appointments)
+                pdfLib.Container(
+                  margin: pdfLib.EdgeInsets.symmetric(vertical: 10.0),
+                  child: pdfLib.Column(
+                    crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
+                    children: [
+                      pdfLib.Text('Appointment ID: ${appointment['id']}'),
+                      pdfLib.Text('Date: ${appointment['date_time']}'),
+                      pdfLib.Text(
+                          'Style of Cut: ${appointment['style_of_cut'] ?? 'None'}'),
+                      pdfLib.Text('Verified: ${appointment['verified']}'),
+                      pdfLib.Text(
+                          'Service Rated: ${appointment['service_rated']}'),
+                      pdfLib.Text('Rating: ${appointment['rating']}'),
+                      pdfLib.Text(
+                          'Rating Comment: ${appointment['rating_comment'] ?? 'None'}'),
+                    ],
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
   }
 }
