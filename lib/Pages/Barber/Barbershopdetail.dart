@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:salonbuddy/Pages/Barber/Styleofcut.dart';
 import 'package:salonbuddy/Pages/Barber/UpdateBarbershopPage.dart';
 import 'package:salonbuddy/Pages/Barber/appointment.dart';
+import 'package:salonbuddy/Pages/Barber/barberpage.dart'; // Import the BarberPage
 
 class BarbershopDetailsPage extends StatelessWidget {
   final int barbershopId;
@@ -67,6 +68,21 @@ class BarbershopDetailsPage extends StatelessWidget {
                 );
               },
               child: Text('Edit Barbershop'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BarberPage(
+                      barbershopId: barbershopId,
+                      accessToken: accessToken,
+                    ),
+                  ),
+                );
+              },
+              child: Text('View Barbers'),
             ),
           ],
         ),

@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from api import views
 
+
 urlpatterns = [
     path("token/", views.MyTokenObtainedPairView.as_view()),
     path('users/', views.UserListView.as_view(), name='user_list'),
@@ -28,4 +29,11 @@ urlpatterns = [
     path('barbershops/<int:barbershop_id>/appointments/<int:pk>/', views.AppointmentDetailView.as_view(), name='appointment-detail'),
     path('verified-appointments/<int:user_id>/', views.VerifiedAppointmentsView.as_view(), name='verified_appointments'),
     path('update-device-token/', views.UpdateDeviceTokenView.as_view(), name='update_device_token'),
+    path('appointments/<int:pk>/generate-pdf/', views.AppointmentDetailView.as_view(), name='generate_appointment_pdf'),
+    path('barber-appointments/<int:barbershop_id>/verified/', views.BarberAppointmentsView.as_view(), name='barber_appointments'),
+    path('barbershop/<int:barbershop_id>/barber/create/', views.BarberCreateView.as_view(), name='barber_create'),
+    path('barbershop/<int:barbershop_id>/barbers/', views.BarberListView.as_view(), name='barber_list'),
+    path('barbershop/<int:barbershop_id>/barbers/<int:barber_id>/', views.BarberDetailView.as_view(), name='barber-detail'),
+
+
 ]

@@ -47,9 +47,12 @@ post_save.connect(create_user_profile, sender=User)
 post_save.connect(save_user_profile,sender=User)
 
 class Barber(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='barber')
+    name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+    address = models.TextField()
+    barbershop = models.ForeignKey('Barbershop', on_delete=models.CASCADE, related_name='barbers')
 
-User = get_user_model()
+
 
 class Barbershop(models.Model):
     user_id = models.IntegerField()
@@ -98,13 +101,13 @@ class StyleOfCut(models.Model):
 
 class Appointment(models.Model):
     barbershop = models.ForeignKey(Barbershop, on_delete=models.CASCADE, related_name='appointments')
-    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
+    barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='appointments')
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
-    style_of_cut = models.ForeignKey(StyleOfCut, on_delete=models.CASCADE, related_name='appointments', null=True, blank=True)
+    style_of_cut = models.CharField()
     date_time = models.DateTimeField()
     verified = models.BooleanField(default=False)
     service_rated = models.BooleanField(default=False, help_text='Indicates if the service has been rated')
-    rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    rating = models.DecimalField(null=True, blank=True, max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(5)])
     rating_comment = models.TextField(null=True, blank=True, help_text='Comments on the service')
 
     def __str__(self):

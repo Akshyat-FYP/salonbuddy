@@ -44,6 +44,37 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     }
   }
 
+  Future<String> fetchBarbershopName(int barbershopId) async {
+    final apiUrl = 'http://192.168.10.69:8000/api/barbershops/$barbershopId/';
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {'Authorization': 'Bearer ${widget.accessToken}'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> barbershop = json.decode(response.body);
+      return barbershop['name'];
+    } else {
+      throw Exception('Failed to load barbershop name');
+    }
+  }
+
+  Future<String> fetchBarberName(int barbershopId, int barberId) async {
+    final apiUrl =
+        'http://192.168.10.69:8000/api/barbershop/$barbershopId/barbers/$barberId/';
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {'Authorization': 'Bearer ${widget.accessToken}'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> barber = json.decode(response.body);
+      return barber['name'];
+    } else {
+      throw Exception('Failed to load barber name');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +88,6 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           final DateTime dateTime = DateTime.parse(appointment['date_time']);
           final formattedDateTime =
               '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
-          final barbershop = appointment['barbershop']; // Get barbershopId
 
           return GestureDetector(
             onTap: () {
@@ -67,7 +97,8 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                 MaterialPageRoute(
                   builder: (context) => AppointmentRatingPage(
                       appointmentId: appointment['id'],
-                      barbershop: barbershop,
+                      barbershop: appointment['barbershop'],
+                      // barberId: appointment['barber'],
                       accessToken: widget.accessToken // Pass barbershopId
                       ),
                 ),
@@ -75,7 +106,33 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
             },
             child: ListTile(
               title: Text('Appointment ID: ${appointment['id']}'),
-              subtitle: Text('Date and Time: $formattedDateTime'),
+              subtitle: FutureBuilder(
+                future: Future.wait([
+                  fetchBarbershopName(appointment['barbershop']),
+                  fetchBarberName(
+                      appointment['barbershop'], appointment['barber']),
+                ]),
+                builder: (context, AsyncSnapshot<List<String>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Date and Time: $formattedDateTime'),
+                        Text('Barbershop: ${snapshot.data![0]}'),
+                        Text('Barber: ${snapshot.data![1]}'),
+                        Text('Style of Cut: ${appointment['style_of_cut']}'),
+                        Text(appointment['rating'] != null
+                            ? 'Rating: ${appointment['rating']}'
+                            : 'Please rate the appointment'),
+                      ],
+                    );
+                  }
+                },
+              ),
             ),
           );
         },

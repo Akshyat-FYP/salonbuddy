@@ -19,14 +19,38 @@ class CreateAppointmentPage extends StatefulWidget {
 class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  final TextEditingController styleOfCutController = TextEditingController();
   String? selectedStyleOfCut;
   List<dynamic> stylesOfCut = [];
+  int? selectedBarberId;
+  List<dynamic> barbers = [];
 
   @override
   void initState() {
     super.initState();
     fetchStylesOfCut();
+    fetchBarbers();
+  }
+
+  Future<void> fetchBarbers() async {
+    try {
+      final apiUrl =
+          'http://192.168.10.69:8000/api/barbershop/${widget.barbershopId}/barbers/';
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {'Authorization': 'Bearer ${widget.accessToken}'},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          barbers = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Failed to load barbers');
+      }
+    } catch (e) {
+      print('Error fetching barbers: $e');
+      throw Exception('Error fetching barbers');
+    }
   }
 
   Future<void> fetchStylesOfCut() async {
@@ -37,9 +61,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
         Uri.parse(apiUrl),
         headers: {'Authorization': 'Bearer ${widget.accessToken}'},
       );
-
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         setState(() {
@@ -83,17 +104,27 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     final apiUrl =
         'http://192.168.10.69:8000/api/barbershops/${widget.barbershopId}/appointments/create/';
 
-    // Decode the access token to extract the user ID
     final Map<String, dynamic> payload = Jwt.parseJwt(widget.accessToken);
     final int userId = payload['user_id'];
 
+    final selectedStyle = stylesOfCut.firstWhere(
+      (style) => style['id'].toString() == selectedStyleOfCut,
+      orElse: () => null,
+    );
+
+    if (selectedStyle == null) {
+      print('Selected style not found');
+      return;
+    }
+
     final Map<String, dynamic> appointmentData = {
       'barbershop': widget.barbershopId,
-      'customer': userId, // Use the user ID extracted from the access token
-      'style_of_cut': selectedStyleOfCut,
+      'customer': userId,
+      'style_of_cut': selectedStyle['name'], // Send style_of_cut as name
       'date_time': DateTime(selectedDate.year, selectedDate.month,
               selectedDate.day, selectedTime.hour, selectedTime.minute)
           .toString(),
+      'barber': selectedBarberId,
     };
 
     try {
@@ -106,9 +137,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
         body: json.encode(appointmentData),
       );
 
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
       if (response.statusCode == 201) {
         Navigator.pop(context);
       } else {
@@ -117,7 +145,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       }
     } catch (e) {
       print('Error creating appointment: $e');
-      // Handle error, show a snackbar, toast, or dialog to inform the user
     }
   }
 
@@ -174,6 +201,25 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               ),
             ),
             SizedBox(height: 16.0),
+            DropdownButtonFormField<int>(
+              value: selectedBarberId,
+              onChanged: (newValue) {
+                setState(() {
+                  selectedBarberId = newValue;
+                });
+              },
+              items: barbers.map<DropdownMenuItem<int>>((barber) {
+                return DropdownMenuItem<int>(
+                  value: barber['id'],
+                  child: Text(barber['name']),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                labelText: 'Barber',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16.0),
             DropdownButtonFormField<String>(
               value: selectedStyleOfCut,
               onChanged: (newValue) {
@@ -183,7 +229,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               },
               items: stylesOfCut.map<DropdownMenuItem<String>>((style) {
                 return DropdownMenuItem<String>(
-                  value: style['name'],
+                  value: style['id'].toString(), // Use ID as the value
                   child: Text(style['name']),
                 );
               }).toList(),

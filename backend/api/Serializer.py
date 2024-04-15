@@ -1,4 +1,4 @@
-from api.models import User, Profile , Barbershop,StyleOfCut,Appointment
+from api.models import Barber, User, Profile , Barbershop,StyleOfCut,Appointment
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
@@ -76,8 +76,6 @@ class StyleOfCutSerializer(serializers.ModelSerializer):
 
 # Appointment
 class AppointmentSerializer(serializers.ModelSerializer):
-    style_of_cut = StyleOfCutSerializer(read_only=True)
-
     class Meta:
         model = Appointment
         fields = [
@@ -86,14 +84,30 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'service_rated', 'rating', 'rating_comment'
         ]
         extra_kwargs = {
-            'style_of_cut': {'required': False, 'allow_null': True},
             'rating': {'required': False},
             'rating_comment': {'required': False},
             'service_rated': {'read_only': True}
         }
     
+    def to_internal_value(self, data):
+        # Convert integer ID to StyleOfCut instance
+        if 'style_of_cut' in data and isinstance(data['style_of_cut'], int):
+            style_of_cut_id = data.pop('style_of_cut')
+            try:
+                style_of_cut_instance = StyleOfCut.objects.get(id=style_of_cut_id)
+                data['style_of_cut'] = style_of_cut_instance
+            except StyleOfCut.DoesNotExist:
+                raise serializers.ValidationError("StyleOfCut with this ID does not exist.")
+        
+        return super().to_internal_value(data)
+
     def validate_date_time(self, value):
         if value.hour < 9 or value.hour >= 19:
             raise serializers.ValidationError("Appointments can only be booked between 9 AM to 6 PM.")
         return value
+
     
+class BarberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Barber
+        fields = ['id', 'name', 'phone_number', 'address', 'barbershop']

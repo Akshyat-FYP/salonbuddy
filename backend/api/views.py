@@ -1,8 +1,8 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView,RetrieveAPIView
 from django.shortcuts import render, get_object_or_404
-from api.models import User, Profile , Barbershop,StyleOfCut,Appointment
-from .Serializer import UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer , LoginSerializer,BarbershopSerializer,StyleOfCutSerializer,AppointmentSerializer
+from api.models import Barber, User, Profile , Barbershop,StyleOfCut,Appointment
+from .Serializer import BarberSerializer, UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer , LoginSerializer,BarbershopSerializer,StyleOfCutSerializer,AppointmentSerializer
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -12,8 +12,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from pyfcm import FCMNotification
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
+import os
+from django.utils.datastructures import MultiValueDict
+from .tasks import send_reminder_notifications  # Import the Celery task
+from django.utils import timezone
 
-import datetime
 
 class UserDetailView(RetrieveAPIView):
     queryset = User.objects.all()
@@ -166,6 +173,14 @@ def is_not_holiday(date_time):
     return date_time.weekday() != 6  # 6 represents Sunday
 
 # appointment
+class BarberAppointmentsView(ListAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        barbershop_id = self.kwargs['barbershop_id']
+        return Appointment.objects.filter(barbershop_id=barbershop_id, verified=True)
+    
 class AppointmentListView(generics.ListAPIView):
     serializer_class = AppointmentSerializer
 
@@ -187,7 +202,6 @@ class AppointmentDetailView(generics.RetrieveUpdateDestroyAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
-    
 class AppointmentCreateView(generics.CreateAPIView):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
@@ -205,18 +219,20 @@ class AppointmentCreateView(generics.CreateAPIView):
         # Perform additional validation here if needed
         
         self.perform_create(serializer, barbershop)
+        
+        # Trigger the Celery task to send reminder notifications
+        appointment_time = serializer.validated_data.get('date_time')
+        send_reminder_notifications.apply_async(args=[appointment_time], eta=appointment_time - timezone.timedelta(minutes=15))
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer, barbershop):
-        appointment_time = serializer.validated_data.get('date_time')
-        
-        # Assuming you have functions like is_within_operating_hours and is_not_holiday defined
-        if not is_within_operating_hours(appointment_time) or not is_not_holiday(appointment_time):
-            raise ValidationError('Appointment time is outside operating hours or on a holiday.')
-        
         serializer.save(barbershop=barbershop)
 
+        # Assuming you have functions like is_within_operating_hours and is_not_holiday defined
+        # if not is_within_operating_hours(appointment_time) or not is_not_holiday(appointment_time):
+        #     raise ValidationError('Appointment time is outside operating hours or on a holiday.')
 class VerifiedAppointmentsView(generics.ListAPIView):
     serializer_class = AppointmentSerializer
 
@@ -224,15 +240,6 @@ class VerifiedAppointmentsView(generics.ListAPIView):
         user_id = self.kwargs['user_id']
         return Appointment.objects.filter(customer_id=user_id, verified=True)
        
-def send_push_notification(token, title, message):
-    push_service = FCMNotification(api_key="AAAAeNJNoGs:APA91bENSuJVL4BXQVYSrky4FBpzHdwzv6WNkh0Gm40aO45_7CGp8TxQWX0mnNKe5y8AyB2k0QcTCH1ynUPOuPeMmABCImjict2I3IiGWuywQkqYF5VNaBK4G7pmtD8w-6yGq_H45Vpr")
-    
-    result = push_service.notify_single_device(
-        registration_id=token,
-        message_title=title,
-        message_body=message
-    )
-    return result
 
 class UpdateDeviceTokenView(APIView):
     def post(self, request):
@@ -246,3 +253,79 @@ class UpdateDeviceTokenView(APIView):
         profile.save()
 
         return Response({'success': 'Device token updated successfully'}, status=status.HTTP_200_OK)
+
+
+
+
+
+def generate_appointment_pdf(appointment):
+    # Create a PDF document
+    file_path = f"appointment_{appointment.id}.pdf"
+    doc = SimpleDocTemplate(file_path, pagesize=letter)
+    styles = getSampleStyleSheet()
+    style_normal = styles['Normal']
+    style_bold = styles['Heading1']
+
+    # Appointment details
+    appointment_details = [
+        ("Date:", appointment.date_time.strftime('%Y-%m-%d')),
+        ("Time:", appointment.date_time.strftime('%H:%M')),
+
+        # Add more details as needed...
+    ]
+
+    # Create a table for appointment details
+    appointment_table = Table(appointment_details, colWidths=[100, 200])
+    appointment_table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                                           ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                                           ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                                           ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                           ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                                           ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                                           ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+
+    # Build the PDF document
+    doc.build([Paragraph("Appointment Details", style_bold), Paragraph("", style_normal), appointment_table])
+
+    return file_path
+
+class AppointmentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AppointmentSerializer
+    queryset = Appointment.objects.all()
+    lookup_field = 'pk'  # Use 'pk' as the lookup field
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        
+        # Check if the appointment is being marked as verified
+        if 'verified' in request.data and request.data['verified'] is True:
+            # Generate PDF for completed appointment
+            pdf_file = generate_appointment_pdf(instance)
+            # Optionally, you can send the PDF to the user or provide a download link
+            
+        self.perform_update(serializer)
+        return Response(serializer.data)
+    
+#barber
+class BarberCreateView(generics.CreateAPIView):
+    queryset = Barber.objects.all()
+    serializer_class = BarberSerializer
+
+class BarberListView(generics.ListAPIView):
+    serializer_class = BarberSerializer
+
+    def get_queryset(self):
+        barbershop_id = self.kwargs['barbershop_id']
+        return Barber.objects.filter(barbershop_id=barbershop_id)
+    
+class BarberDetailView(APIView):
+    def get(self, request, barbershop_id, barber_id):
+        # Retrieve the barber object or return 404 if not found
+        barber = get_object_or_404(Barber, id=barber_id, barbershop_id=barbershop_id)
+
+        # Serialize the barber object to JSON
+        serializer = BarberSerializer(barber)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

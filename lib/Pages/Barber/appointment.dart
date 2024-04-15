@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import 'package:salonbuddy/Pages/Barber/approveappointmentpage.dart';
+import 'package:salonbuddy/Pages/Barber/barbershop_appointmentpage.dart';
 
 class AppointmentsPage extends StatefulWidget {
   final int barbershopId;
@@ -71,6 +72,22 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Appointments'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BarberAppointmentsPage(
+                    barbershopId: widget.barbershopId,
+                    accessToken: widget.accessToken,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: appointments.length,

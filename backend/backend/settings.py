@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from django.utils import timezone
 from datetime import timedelta
 from pathlib import Path
 
@@ -173,3 +173,10 @@ SIMPLE_JWT = {
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+FCM_SERVER_KEY = 'AAAAeNJNoGs:APA91bENSuJVL4BXQVYSrky4FBpzHdwzv6WNkh0Gm40aO45_7CGp8TxQWX0mnNKe5y8AyB2k0QcTCH1ynUPOuPeMmABCImjict2I3IiGWuywQkqYF5VNaBK4G7pmtD8w-6yGq_H45Vpr'
+CELERY_BEAT_SCHEDULE = {
+    'send-reminder-notifications': {
+        'task': 'backend.api.tasks.send_reminder_notifications',
+        'schedule': timezone.timedelta(minutes=1),  # Adjust the interval as needed
+    },
+}
