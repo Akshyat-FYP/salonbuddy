@@ -97,8 +97,11 @@ class _AppointmentRatingPageState extends State<AppointmentRatingPage> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => updateAppointmentRating(
-                    _currentRating, _commentController.text),
+                onPressed: () async {
+                  await updateAppointmentRating(
+                      _currentRating, _commentController.text);
+                  Navigator.pop(context);
+                },
                 child: const Text('Submit Rating'),
               ),
             ],

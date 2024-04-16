@@ -32,6 +32,25 @@
   <title>salonbuddy</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- Firebase JavaScript SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+  <!-- Add other Firebase services if needed, e.g., Firestore, Auth, etc. -->
+
+  <script>
+    // Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyDHNWoshBYJP1ViYg0MbTghL9yE6yf4NJ0",
+  authDomain: "barberboss-3ca36.firebaseapp.com",
+  projectId: "barberboss-3ca36",
+  storageBucket: "barberboss-3ca36.appspot.com",
+  messagingSenderId: "518924378219",
+  appId: "1:518924378219:web:a987049fccc08227ed112e",
+  measurementId: "G-05K8CTSPGY"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script>
     // The value below is injected by flutter build, do not touch.
     const serviceWorkerVersion = null;

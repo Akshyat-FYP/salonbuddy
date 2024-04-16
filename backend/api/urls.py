@@ -13,6 +13,8 @@ urlpatterns = [
     path("dashboard/", views.dashboard),
     path("login/", views.LoginAPIView.as_view()),
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
+    path('profile/update/', views.ProfileUpdateAPIView.as_view(), name='profile-update'),
+    path('profile/image/', views.ProfileImageView.as_view(), name='profile_image'),
     path('barbershops/', views.list_barbershops, name='barbershop-list'),
     path('barbershops/<int:pk>/', views.BarbershopDetailView.as_view(), name='barbershop-detail'),
     path('barbershops/create/<int:userId>/', views.create_barbershop, name='create_barbershop'),

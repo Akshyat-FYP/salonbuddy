@@ -40,15 +40,23 @@ class CreateBarbershopPage extends StatelessWidget {
   }
 
   int extractUserIdFromToken(String accessToken) {
-    final parts = accessToken.split('.');
-    if (parts.length != 3) {
-      throw Exception('Invalid access token');
+    try {
+      final parts = accessToken.split('.');
+      if (parts.length != 3) {
+        throw Exception('Invalid access token');
+      }
+      final payload = parts[1];
+      final decodedPayload = base64Url.decode(base64.normalize(payload));
+      final Map<String, dynamic> payloadMap =
+          json.decode(utf8.decode(decodedPayload));
+      return payloadMap['user_id'] ??
+          payloadMap['id']; // Try 'user_id' first, fallback to 'id'
+    } catch (e) {
+      print('Error decoding access token:');
+      print('Token: $accessToken');
+      print('Error: $e');
+      rethrow;
     }
-    final payload = parts[1];
-    final decodedPayload = base64Url.decode(payload);
-    final Map<String, dynamic> payloadMap =
-        json.decode(utf8.decode(decodedPayload));
-    return payloadMap['id'];
   }
 
   @override

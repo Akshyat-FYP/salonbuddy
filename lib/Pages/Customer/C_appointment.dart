@@ -79,63 +79,95 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointments'),
+        title: Text(
+          'Appointments',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
       ),
-      body: ListView.builder(
-        itemCount: appointments.length,
-        itemBuilder: (context, index) {
-          final appointment = appointments[index];
-          final DateTime dateTime = DateTime.parse(appointment['date_time']);
-          final formattedDateTime =
-              '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+      body: Container(
+        color: Colors.grey[850], // Set container color to grey
+        child: ListView.builder(
+          itemCount: appointments.length,
+          itemBuilder: (context, index) {
+            final appointment = appointments[index];
+            final DateTime dateTime = DateTime.parse(appointment['date_time']);
+            final formattedDateTime =
+                '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
 
-          return GestureDetector(
-            onTap: () {
-              // Navigate to the rating page when tapped
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AppointmentRatingPage(
-                      appointmentId: appointment['id'],
-                      barbershop: appointment['barbershop'],
-                      // barberId: appointment['barber'],
-                      accessToken: widget.accessToken // Pass barbershopId
-                      ),
+            return GestureDetector(
+              onTap: () {
+                // Navigate to the rating page when tapped
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AppointmentRatingPage(
+                        appointmentId: appointment['id'],
+                        barbershop: appointment['barbershop'],
+                        // barberId: appointment['barber'],
+                        accessToken: widget.accessToken // Pass barbershopId
+                        ),
+                  ),
+                );
+              },
+              child: Card(
+                elevation: 2.0,
+                color: Colors.grey[700], // Set card color to lighter grey
+                child: ListTile(
+                  title: Text(
+                    'Appointment ID: ${appointment['id']}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  subtitle: FutureBuilder(
+                    future: Future.wait([
+                      fetchBarbershopName(appointment['barbershop']),
+                      fetchBarberName(
+                          appointment['barbershop'], appointment['barber']),
+                    ]),
+                    builder: (context, AsyncSnapshot<List<String>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text(
+                          'Error: ${snapshot.error}',
+                          style: TextStyle(color: Colors.white),
+                        );
+                      } else {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Date and Time: $formattedDateTime',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              'Barbershop: ${snapshot.data![0]}',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              'Barber: ${snapshot.data![1]}',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              'Style of Cut: ${appointment['style_of_cut']}',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              appointment['rating'] != null
+                                  ? 'Rating: ${appointment['rating']}'
+                                  : 'Please rate the appointment',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
                 ),
-              );
-            },
-            child: ListTile(
-              title: Text('Appointment ID: ${appointment['id']}'),
-              subtitle: FutureBuilder(
-                future: Future.wait([
-                  fetchBarbershopName(appointment['barbershop']),
-                  fetchBarberName(
-                      appointment['barbershop'], appointment['barber']),
-                ]),
-                builder: (context, AsyncSnapshot<List<String>> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Date and Time: $formattedDateTime'),
-                        Text('Barbershop: ${snapshot.data![0]}'),
-                        Text('Barber: ${snapshot.data![1]}'),
-                        Text('Style of Cut: ${appointment['style_of_cut']}'),
-                        Text(appointment['rating'] != null
-                            ? 'Rating: ${appointment['rating']}'
-                            : 'Please rate the appointment'),
-                      ],
-                    );
-                  }
-                },
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

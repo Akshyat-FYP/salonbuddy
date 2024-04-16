@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
       // Extract the role from the payload
       final String role = payload['role'];
 
-      // Check if the user's role meets the criteria for login
+      // Navigate based on the role
       if (role == 'customer') {
         Navigator.pushReplacement(
           context,
@@ -87,57 +87,30 @@ class _LoginPageState extends State<LoginPage> {
       // After successful login, send device token to backend
       await sendDeviceTokenToBackend(accessToken);
     } else {
-      // Handle error
       final dynamic responseData = json.decode(response.body);
       final String? errorMessage = responseData['detail'];
-      if (errorMessage != null) {
-        // Display error message
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Login Failed'),
-              content: Text(errorMessage),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        // If error message is null, display a generic error
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Login Failed'),
-              content: Text('An unknown error occurred.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-      print('Login failed');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Login Failed'),
+            content: Text(errorMessage ?? 'An unknown error occurred.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
   Future<void> sendDeviceTokenToBackend(String accessToken) async {
-    // Get the device token
     String? deviceToken = await NotificationService.getDeviceToken();
-
-    // If device token is available, send it to the backend
     if (deviceToken != null) {
       final String apiUrl =
           'http://192.168.10.69:8000/api/update-device-token/';
@@ -161,28 +134,18 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Whitish background color
+      backgroundColor: Colors.black, // Set background to black
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.lock,
-                  size: 100,
-                  color: const Color.fromARGB(
-                      255, 0, 0, 0), // Icon color changed to blue
-                ),
-                SizedBox(height: 20),
-                Text(
-                  "Welcome back!",
-                  style: TextStyle(
-                    color: const Color.fromARGB(
-                        255, 0, 0, 0), // Text color changed to blue
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Image.asset(
+                  'assests/images/barberboss.jpg',
+                  width: 250,
+                  height: 250,
+                  fit: BoxFit.cover,
                 ),
                 SizedBox(height: 20),
                 Padding(
@@ -193,18 +156,15 @@ class _LoginPageState extends State<LoginPage> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           hintText: "Email",
-                          hintStyle: TextStyle(
-                              color: Colors.grey[600]), // Hint text color
+                          hintStyle: TextStyle(color: Colors.white70),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
-                            borderSide:
-                                BorderSide(color: Colors.blue), // Border color
+                            borderSide: BorderSide(color: Colors.grey),
                           ),
                           filled: true,
-                          fillColor:
-                              Colors.white, // Text field background color
+                          fillColor: Colors.white24,
                         ),
-                        style: TextStyle(color: Colors.black), // Text color
+                        style: TextStyle(color: Colors.white),
                       ),
                       SizedBox(height: 20),
                       TextField(
@@ -212,18 +172,15 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: "Password",
-                          hintStyle: TextStyle(
-                              color: Colors.grey[600]), // Hint text color
+                          hintStyle: TextStyle(color: Colors.white70),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
-                            borderSide:
-                                BorderSide(color: Colors.blue), // Border color
+                            borderSide: BorderSide(color: Colors.grey),
                           ),
                           filled: true,
-                          fillColor:
-                              Colors.white, // Text field background color
+                          fillColor: Colors.white24,
                         ),
-                        style: TextStyle(color: Colors.black), // Text color
+                        style: TextStyle(color: Colors.white),
                       ),
                       SizedBox(height: 20),
                       Row(
@@ -241,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: Text(
                               "Forgot Password?",
                               style: TextStyle(
-                                color: Color.fromARGB(255, 138, 130, 122),
+                                color: Colors.white70,
                                 fontSize: 16,
                                 decoration: TextDecoration.underline,
                               ),
@@ -254,12 +211,13 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () => _login(context),
                         child: Text('Login'),
                         style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.blue, // Text color
                           padding: EdgeInsets.symmetric(
                               horizontal: 50, vertical: 15),
-                          backgroundColor: Color.fromARGB(255, 0, 0, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
-                          ), // Button color changed to blue
+                          ),
                         ),
                       ),
                       SizedBox(height: 20),
@@ -275,8 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           "Don't have an account? Sign up",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 146, 132,
-                                132), // Link color changed to blue
+                            color: Colors.white70,
                             fontSize: 16,
                             decoration: TextDecoration.underline,
                           ),

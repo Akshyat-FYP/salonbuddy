@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView,RetrieveAPIView
 from django.shortcuts import render, get_object_or_404
@@ -22,6 +23,35 @@ from .tasks import send_reminder_notifications  # Import the Celery task
 from django.utils import timezone
 
 
+class ProfileUpdateAPIView(generics.UpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        # Get the image data from the request
+        image_data = request.FILES.get('image')
+        if image_data:
+            # Update the profile image
+            instance.image.save(instance.user.username + '_profile_image.png', image_data)
+
+        self.perform_update(serializer)
+        return Response(serializer.data)
+class ProfileImageView(APIView):
+    def get(self, request):
+        profile = Profile.objects.get(user=request.user)
+        if profile.image:
+            image_url = profile.image.url
+            return JsonResponse({'image_url': image_url})
+        else:
+            return JsonResponse({'error': 'Image not found'}, status=404)    
 class UserDetailView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:salonbuddy/Pages/auth/ProfileEditPage.dart';
+import 'package:salonbuddy/Pages/auth/loginPage.dart';
 
 class ProfilePage extends StatefulWidget {
   final String accessToken;
@@ -14,22 +16,42 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> profileData = {};
   bool isLoading = true;
+  String imageUrl = '';
 
   Future<void> fetchProfileData(String token) async {
-    final apiUrl = 'http://192.168.10.69:8000/api/profile/';
+    final profileUrl = 'http://192.168.10.69:8000/api/profile/';
+    final imageUrl = 'http://192.168.10.69:8000/api/profile/image/';
     try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
+      final profileResponse = await http.get(
+        Uri.parse(profileUrl),
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
 
-      if (response.statusCode == 200) {
+      if (profileResponse.statusCode == 200) {
+        final profileJson = json.decode(profileResponse.body);
         setState(() {
-          profileData = json.decode(response.body);
+          profileData = profileJson;
           isLoading = false;
         });
+
+        final imageResponse = await http.get(
+          Uri.parse(imageUrl),
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (imageResponse.statusCode == 200) {
+          final imageJson = json.decode(imageResponse.body);
+          final imageUrl = imageJson['url']; // Assuming the key is 'url'
+          setState(() {
+            this.imageUrl = imageUrl;
+          });
+        } else {
+          print('Failed to fetch image');
+        }
       } else {
         print('Failed to fetch profile data');
         setState(() {
@@ -45,16 +67,22 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    fetchProfileData(widget.accessToken);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              // Navigate back to the login page
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -75,15 +103,31 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: TextStyle(fontSize: 18.0),
                       ),
                       SizedBox(height: 10),
-                      Text(
-                        'Verified: ${profileData['verified'] ? 'Yes' : 'No'}',
-                        style: TextStyle(fontSize: 18.0),
-                      ),
-                      SizedBox(height: 10),
-                      Image.network(
-                        'http://192.168.10.69:8000/${profileData['image']}',
-                        width: 200,
-                        height: 200,
+                      imageUrl != null && imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              width: 200,
+                              height: 200,
+                            )
+                          : Container(), // Placeholder if image URL is null or empty
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // Navigate to the profile edit page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileEditPage(
+                                      accessToken: widget.accessToken),
+                                ),
+                              );
+                            },
+                            child: Text('Edit'),
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:salonbuddy/Pages/Barber/Barbershopdetail.dart';
 import 'package:salonbuddy/Pages/Barber/CreateBarbershopPage.dart';
-import 'package:salonbuddy/Pages/Barber/UpdateBarbershopPage.dart';
+import 'package:salonbuddy/Pages/auth/Profile.dart';
 import 'package:salonbuddy/Pages/auth/loginPage.dart';
 
 class BHomePage extends StatefulWidget {
@@ -16,6 +16,7 @@ class BHomePage extends StatefulWidget {
 }
 
 class _BHomePageState extends State<BHomePage> {
+  int _selectedIndex = 0;
   List<dynamic> barbershops = [];
 
   @override
@@ -34,9 +35,6 @@ class _BHomePageState extends State<BHomePage> {
         headers: {'Authorization': 'Bearer ${widget.accessToken}'},
       );
 
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         setState(() {
           barbershops = json.decode(response.body);
@@ -51,16 +49,24 @@ class _BHomePageState extends State<BHomePage> {
     }
   }
 
-  String extractUserIdFromToken(String accessToken) {
-    final parts = accessToken.split('.');
-    if (parts.length != 3) {
-      throw Exception('Invalid access token');
+  int extractUserIdFromToken(String accessToken) {
+    try {
+      final parts = accessToken.split('.');
+      if (parts.length != 3) {
+        throw Exception('Invalid access token');
+      }
+      final payload = parts[1];
+      final decodedPayload = base64Url.decode(base64.normalize(payload));
+      final Map<String, dynamic> payloadMap =
+          json.decode(utf8.decode(decodedPayload));
+      return payloadMap['user_id'] ??
+          payloadMap['id']; // Try 'user_id' first, fallback to 'id'
+    } catch (e) {
+      print('Error decoding access token:');
+      print('Token: $accessToken');
+      print('Error: $e');
+      rethrow;
     }
-    final payload = parts[1];
-    final decodedPayload = base64Url.decode(payload);
-    final Map<String, dynamic> payloadMap =
-        json.decode(utf8.decode(decodedPayload));
-    return payloadMap['id'].toString();
   }
 
   Future<void> deleteBarbershop(String id) async {
@@ -70,7 +76,6 @@ class _BHomePageState extends State<BHomePage> {
     );
 
     if (response.statusCode == 204) {
-      // Barbershop deleted successfully, fetch the updated list
       fetchBarbershops();
     } else {
       throw Exception('Failed to delete barbershop');
@@ -86,22 +91,7 @@ class _BHomePageState extends State<BHomePage> {
         ),
       ),
     );
-  }
-
-  Future<void> navigateToUpdateBarbershopPage(
-      BuildContext context, dynamic barbershop) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UpdateBarbershopPage(
-          barbershopId: barbershop,
-          accessToken: widget.accessToken,
-        ),
-      ),
-    );
-
-    // Fetch barbershops again after updating
-    fetchBarbershops();
+    fetchBarbershops(); // Refresh the list after creating a new barbershop
   }
 
   Future<void> navigateToBarbershopDetailsPage(
@@ -110,19 +100,10 @@ class _BHomePageState extends State<BHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => BarbershopDetailsPage(
-          barbershopId: barbershop['id'], // Pass barbershopId here
+          barbershopId: barbershop['id'],
           accessToken: widget.accessToken,
         ),
       ),
-    );
-  }
-
-  Future<void> logout(BuildContext context) async {
-    // Perform logout operation here, such as clearing session data
-    // After logout, navigate back to the login page
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 
@@ -130,75 +111,102 @@ class _BHomePageState extends State<BHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Page'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout(context);
-            },
-            icon: Icon(Icons.logout),
+        title: Text("Salon Buddy"),
+      ),
+      body: _getSelectedWidget(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Barbershops',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Create Barbershop',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome to the Barber Page!',
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                navigateToCreateBarbershopPage(context);
-              },
-              child: Text('Create Barbershop'),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: barbershops.length,
-                itemBuilder: (context, index) {
-                  final barbershop = barbershops[index];
-                  return ListTile(
-                    title: Text(barbershop['name']),
-                    subtitle: Text(barbershop['address']),
-                    onTap: () {
-                      navigateToBarbershopDetailsPage(context, barbershop);
-                    },
-                    onLongPress: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Delete Barbershop'),
-                            content: Text(
-                                'Are you sure you want to delete this barbershop?'),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  deleteBarbershop(barbershop['id'].toString());
-                                },
-                                child: Text('Delete'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
+  }
+
+  Widget _getSelectedWidget() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildBarbershopsWidget();
+      case 1:
+        return _buildCreateBarbershopWidget();
+      case 2:
+        return ProfilePage(accessToken: widget.accessToken);
+      default:
+        return SizedBox.shrink();
+    }
+  }
+
+  Widget _buildCreateBarbershopWidget() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            navigateToCreateBarbershopPage(context);
+          },
+          child: Text('Create Barbershop'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBarbershopsWidget() {
+    return ListView.builder(
+      itemCount: barbershops.length,
+      itemBuilder: (context, index) {
+        final barbershop = barbershops[index];
+        return ListTile(
+          title: Text(barbershop['name']),
+          subtitle: Text(barbershop['address']),
+          onTap: () {
+            navigateToBarbershopDetailsPage(context, barbershop);
+          },
+          onLongPress: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Delete Barbershop'),
+                  content:
+                      Text('Are you sure you want to delete this barbershop?'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        deleteBarbershop(barbershop['id'].toString());
+                      },
+                      child: Text('Delete'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }
