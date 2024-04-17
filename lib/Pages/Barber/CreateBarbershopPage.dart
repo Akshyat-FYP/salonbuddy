@@ -2,28 +2,41 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class CreateBarbershopPage extends StatelessWidget {
+class CreateBarbershopPage extends StatefulWidget {
   final String accessToken;
 
   CreateBarbershopPage({required this.accessToken});
 
+  @override
+  _CreateBarbershopPageState createState() => _CreateBarbershopPageState();
+}
+
+class _CreateBarbershopPageState extends State<CreateBarbershopPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  TimeOfDay? openingTime;
+  TimeOfDay? closingTime;
 
   Future<void> createBarbershop(BuildContext context) async {
-    final int userId = extractUserIdFromToken(accessToken);
+    final int userId = extractUserIdFromToken(widget.accessToken);
     final String apiUrl =
         'http://192.168.10.69:8000/api/barbershops/create/$userId/';
 
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer ${widget.accessToken}',
         'Content-Type': 'application/json',
       },
       body: json.encode({
         'name': nameController.text,
         'address': addressController.text,
+        'opening_time': openingTime != null
+            ? '${openingTime!.hour}:${openingTime!.minute}'
+            : null,
+        'closing_time': closingTime != null
+            ? '${closingTime!.hour}:${closingTime!.minute}'
+            : null,
         'user_id': userId, // Pass user ID as a separate field
       }),
     );
@@ -59,6 +72,30 @@ class CreateBarbershopPage extends StatelessWidget {
     }
   }
 
+  Future<void> _selectOpeningTime(BuildContext context) async {
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (selectedTime != null) {
+      setState(() {
+        openingTime = selectedTime;
+      });
+    }
+  }
+
+  Future<void> _selectClosingTime(BuildContext context) async {
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (selectedTime != null) {
+      setState(() {
+        closingTime = selectedTime;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +115,36 @@ class CreateBarbershopPage extends StatelessWidget {
             TextField(
               controller: addressController,
               decoration: InputDecoration(labelText: 'Address'),
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('Opening Time:'),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () => _selectOpeningTime(context),
+                  child: Text(
+                    openingTime != null
+                        ? '${openingTime!.hour}:${openingTime!.minute}'
+                        : 'Select Time',
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              children: [
+                Text('Closing Time:'),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () => _selectClosingTime(context),
+                  child: Text(
+                    closingTime != null
+                        ? '${closingTime!.hour}:${closingTime!.minute}'
+                        : 'Select Time',
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             ElevatedButton(

@@ -57,13 +57,6 @@ class _LoginPageState extends State<LoginPage> {
             builder: (context) => BHomePage(accessToken: accessToken),
           ),
         );
-      } else if (role == 'admin') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AHomePage(accessToken: accessToken),
-          ),
-        );
       } else {
         showDialog(
           context: context,

@@ -49,7 +49,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       }
     } catch (e) {
       print('Error fetching barbers: $e');
-      throw Exception('Error fetching barbers');
+      // Handle error
     }
   }
 
@@ -72,7 +72,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       }
     } catch (e) {
       print('Error fetching styles of cut: $e');
-      throw Exception('Error fetching styles of cut');
+      // Handle error
     }
   }
 
@@ -114,6 +114,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
 
     if (selectedStyle == null) {
       print('Selected style not found');
+      // Handle error: Style not found
       return;
     }
 
@@ -145,6 +146,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       }
     } catch (e) {
       print('Error creating appointment: $e');
+      // Handle error
     }
   }
 

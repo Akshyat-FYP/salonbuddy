@@ -20,6 +20,8 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
   final TextEditingController addressController = TextEditingController();
   bool inService = true; // Default to true
   bool isLoading = true; // Initially set to true to indicate loading
+  TimeOfDay? openingTime;
+  TimeOfDay? closingTime;
 
   @override
   void initState() {
@@ -66,6 +68,12 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
       'name': nameController.text,
       'address': addressController.text,
       'in_service': inService,
+      'opening_time': openingTime != null
+          ? '${openingTime!.hour}:${openingTime!.minute}'
+          : null,
+      'closing_time': closingTime != null
+          ? '${closingTime!.hour}:${closingTime!.minute}'
+          : null,
     };
 
     try {
@@ -95,6 +103,30 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
     });
   }
 
+  Future<void> _selectOpeningTime(BuildContext context) async {
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (selectedTime != null) {
+      setState(() {
+        openingTime = selectedTime;
+      });
+    }
+  }
+
+  Future<void> _selectClosingTime(BuildContext context) async {
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (selectedTime != null) {
+      setState(() {
+        closingTime = selectedTime;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,6 +148,36 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
                   TextField(
                     controller: addressController,
                     decoration: InputDecoration(labelText: 'Address'),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Text('Opening Time:'),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => _selectOpeningTime(context),
+                        child: Text(
+                          openingTime != null
+                              ? '${openingTime!.hour}:${openingTime!.minute}'
+                              : 'Select Time',
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Text('Closing Time:'),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => _selectClosingTime(context),
+                        child: Text(
+                          closingTime != null
+                              ? '${closingTime!.hour}:${closingTime!.minute}'
+                              : 'Select Time',
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 16.0),
                   Row(

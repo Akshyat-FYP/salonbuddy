@@ -66,7 +66,7 @@ class LoginSerializer(serializers.Serializer):
 class BarbershopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Barbershop
-        fields = ['id', 'user_id', 'name', 'address','in_service'] 
+        fields = ['id', 'user_id', 'name', 'address', 'in_service', 'opening_time', 'closing_time']
 
 #style of cut
 class StyleOfCutSerializer(serializers.ModelSerializer):
@@ -101,10 +101,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
         
         return super().to_internal_value(data)
 
-    def validate_date_time(self, value):
-        if value.hour < 9 or value.hour >= 19:
-            raise serializers.ValidationError("Appointments can only be booked between 9 AM to 6 PM.")
-        return value
 
     
 class BarberSerializer(serializers.ModelSerializer):

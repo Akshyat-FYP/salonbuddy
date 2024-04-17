@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
@@ -59,6 +60,8 @@ class Barbershop(models.Model):
     name = models.CharField(max_length=100)
     address = models.TextField()
     in_service = models.BooleanField(default=True)  # New field
+    opening_time = models.TimeField(default=datetime.time(9, 0))  # Default opening time is 9:00 AM
+    closing_time = models.TimeField(default=datetime.time(19, 0))  # Default closing time is 7:00 PM
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -103,7 +106,7 @@ class Appointment(models.Model):
     barbershop = models.ForeignKey(Barbershop, on_delete=models.CASCADE, related_name='appointments')
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name='appointments')
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
-    style_of_cut = models.CharField()
+    style_of_cut = models.CharField(max_length = 100)
     date_time = models.DateTimeField()
     verified = models.BooleanField(default=False)
     service_rated = models.BooleanField(default=False, help_text='Indicates if the service has been rated')

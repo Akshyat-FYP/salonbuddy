@@ -110,9 +110,6 @@ class _BHomePageState extends State<BHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Salon Buddy"),
-      ),
       body: _getSelectedWidget(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -140,7 +137,9 @@ class _BHomePageState extends State<BHomePage> {
       case 0:
         return _buildBarbershopsWidget();
       case 1:
-        return _buildCreateBarbershopWidget();
+        return CreateBarbershopPage(
+          accessToken: widget.accessToken,
+        );
       case 2:
         return ProfilePage(accessToken: widget.accessToken);
       default:

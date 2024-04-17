@@ -191,16 +191,6 @@ def create_default_styles(request, barbershop_id):
     except Exception as e:
         return Response({'message': f'Error creating default styles: {str(e)}'}, status=500)
     
-#appointment
-
-# Helper Functions
-def is_within_operating_hours(date_time):
-    # Assuming operating hours are 9 AM to 7 PM
-    return 9 <= date_time.hour < 19
-
-def is_not_holiday(date_time):
-    # Example: Assuming a simple rule for holidays, adjust according to your needs
-    return date_time.weekday() != 6  # 6 represents Sunday
 
 # appointment
 class BarberAppointmentsView(ListAPIView):
@@ -237,32 +227,41 @@ class AppointmentCreateView(generics.CreateAPIView):
     serializer_class = AppointmentSerializer
 
     def create(self, request, *args, **kwargs):
+        # Extract the barbershop ID from the URL kwargs
         barbershop_id = kwargs.get('barbershop_id')
         try:
+            # Retrieve the barbershop instance
             barbershop = Barbershop.objects.get(id=barbershop_id)
         except Barbershop.DoesNotExist:
+            # Return a 404 response if barbershop is not found
             return Response({'error': 'Barbershop not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Validate the request data using the serializer
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Perform additional validation here if needed
+        # Extract the appointment time from the validated data
+        appointment_time = serializer.validated_data.get('date_time').time()
         
-        self.perform_create(serializer, barbershop)
+        # Check if the appointment time is within the opening hours of the barbershop
+        if not self.is_within_working_hours(appointment_time, barbershop):
+            return Response({'error': 'Appointment time is outside working hours.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trigger the Celery task to send reminder notifications
-        appointment_time = serializer.validated_data.get('date_time')
-        send_reminder_notifications.apply_async(args=[appointment_time], eta=appointment_time - timezone.timedelta(minutes=15))
+        # Set the barbershop field in the serializer
+        serializer.validated_data['barbershop'] = barbershop
+        
+        # Perform creation of the appointment
+        self.perform_create(serializer)
 
+        # Return a success response with the created data
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def perform_create(self, serializer, barbershop):
-        serializer.save(barbershop=barbershop)
+    def is_within_working_hours(self, appointment_time, barbershop):
+        return barbershop.opening_time <= appointment_time < barbershop.closing_time
 
-        # Assuming you have functions like is_within_operating_hours and is_not_holiday defined
-        # if not is_within_operating_hours(appointment_time) or not is_not_holiday(appointment_time):
-        #     raise ValidationError('Appointment time is outside operating hours or on a holiday.')
+
+
 class VerifiedAppointmentsView(generics.ListAPIView):
     serializer_class = AppointmentSerializer
 
