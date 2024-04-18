@@ -20,7 +20,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=15)
     address = models.TextField()
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    
+    verified= models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 

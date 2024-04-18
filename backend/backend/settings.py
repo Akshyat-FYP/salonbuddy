@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
 from django.utils import timezone
 from datetime import timedelta
 from pathlib import Path
@@ -61,7 +62,7 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'templates')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -163,13 +164,6 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp', 'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5000), 'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# EMAIL_USE_TLS = True  
-# EMAIL_HOST = 'smtp.gmail.com'  
-# EMAIL_HOST_USER = 'youremail@gmail.com'  
-# EMAIL_HOST_PASSWORD = 'yourpassword'  
-# EMAIL_PORT = 587  
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -180,3 +174,10 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timezone.timedelta(minutes=1),  # Adjust the interval as needed
     },
 }
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = 587     # Use the port provided by Mailtrap
+EMAIL_HOST_USER = 'e6eb68639e89a4'  # Your Mailtrap username
+EMAIL_HOST_PASSWORD = '1ab43626ca5d6c'  # Your Mailtrap password
+EMAIL_USE_TLS = True  # Use TLS for secure connection
+EMAIL_USE_SSL = False 

@@ -24,190 +24,54 @@ class _RegisterPageState extends State<RegisterPage> {
   String _phoneError = '';
   String _addressError = '';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('User Registration'),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                errorText: _usernameError,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _usernameError = value.isEmpty ? 'Username is required' : '';
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                errorText: _emailError,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _emailError = value.isEmpty ? 'Email is required' : '';
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                errorText: _passwordError,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _passwordError = value.isEmpty ? 'Password is required' : '';
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Confirm Password',
-                errorText: _confirmPasswordError,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _confirmPasswordError =
-                      value.isEmpty ? 'Confirm password is required' : '';
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _phoneController,
-              decoration: InputDecoration(
-                labelText: 'Phone',
-                errorText: _phoneError,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _phoneError = value.isEmpty ? 'Phone is required' : '';
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _addressController,
-              decoration: InputDecoration(
-                labelText: 'Address',
-                errorText: _addressError,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _addressError = value.isEmpty ? 'Address is required' : '';
-                });
-              },
-            ),
-            SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              value: _selectedRole,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedRole = newValue!;
-                });
-              },
-              items: ['customer', 'barber', 'admin']
-                  .map<DropdownMenuItem<String>>(
-                    (String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ),
-                  )
-                  .toList(),
-              decoration: InputDecoration(
-                labelText: 'Role',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (_usernameController.text.trim().isEmpty) {
-                  setState(() {
-                    _usernameError = 'Username is required';
-                  });
-                }
-                if (_emailController.text.trim().isEmpty) {
-                  setState(() {
-                    _emailError = 'Email is required';
-                  });
-                }
-                if (_passwordController.text.trim().isEmpty) {
-                  setState(() {
-                    _passwordError = 'Password is required';
-                  });
-                }
-                if (_confirmPasswordController.text.trim().isEmpty) {
-                  setState(() {
-                    _confirmPasswordError = 'Confirm password is required';
-                  });
-                }
-                if (_phoneController.text.trim().isEmpty) {
-                  setState(() {
-                    _phoneError = 'Phone is required';
-                  });
-                }
-                if (_addressController.text.trim().isEmpty) {
-                  setState(() {
-                    _addressError = 'Address is required';
-                  });
-                }
-                if (_usernameController.text.trim().isNotEmpty &&
-                    _emailController.text.trim().isNotEmpty &&
-                    _passwordController.text.trim().isNotEmpty &&
-                    _confirmPasswordController.text.trim().isNotEmpty &&
-                    _phoneController.text.trim().isNotEmpty &&
-                    _addressController.text.trim().isNotEmpty) {
-                  _register(context);
-                }
-              },
-              child: Text('Register'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _register(BuildContext context) async {
+    // Reset error messages
+    setState(() {
+      _usernameError = '';
+      _emailError = '';
+      _passwordError = '';
+      _confirmPasswordError = '';
+      _phoneError = '';
+      _addressError = '';
+    });
+
+    // Perform validation
+    if (_usernameController.text.trim().isEmpty) {
+      setState(() {
+        _usernameError = 'Username is required';
+      });
+      return;
+    }
+
+    if (_emailController.text.trim().isEmpty) {
+      setState(() {
+        _emailError = 'Email is required';
+      });
+      return;
+    }
+
+    if (_passwordController.text.trim().isEmpty) {
+      setState(() {
+        _passwordError = 'Password is required';
+      });
+      return;
+    }
+
+    if (_confirmPasswordController.text.trim().isEmpty) {
+      setState(() {
+        _confirmPasswordError = 'Confirm password is required';
+      });
+      return;
+    }
+
+    if (_passwordController.text.trim() !=
+        _confirmPasswordController.text.trim()) {
+      setState(() {
+        _confirmPasswordError = 'Passwords do not match';
+      });
+      return;
+    }
+
     // Construct the JSON payload including the selected role
     final Map<String, dynamic> requestBody = {
       'username': _usernameController.text.trim(),
@@ -259,5 +123,98 @@ class _RegisterPageState extends State<RegisterPage> {
         },
       );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('User Registration'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  errorText: _usernameError,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  errorText: _emailError,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  errorText: _passwordError,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Confirm Password',
+                  errorText: _confirmPasswordError,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  labelText: 'Phone',
+                  errorText: _phoneError,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _addressController,
+                decoration: InputDecoration(
+                  labelText: 'Address',
+                  errorText: _addressError,
+                ),
+              ),
+              SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedRole = newValue!;
+                  });
+                },
+                items: ['customer', 'barber', 'admin']
+                    .map<DropdownMenuItem<String>>(
+                      (String value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
+                    )
+                    .toList(),
+                decoration: InputDecoration(
+                  labelText: 'Role',
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _register(context),
+                child: Text('Register'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

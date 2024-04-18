@@ -21,6 +21,19 @@ import os
 from django.utils.datastructures import MultiValueDict
 from .tasks import send_reminder_notifications  # Import the Celery task
 from django.utils import timezone
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import EmailMessage
+from .tokens import account_activation_token
+from django.utils.http import urlsafe_base64_decode
+from django.shortcuts import redirect
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib import messages
+from django.urls import reverse
+
 
 
 class ProfileUpdateAPIView(generics.UpdateAPIView):
@@ -63,11 +76,6 @@ class UserListView(ListAPIView):
 
 class MyTokenObtainedPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -358,3 +366,57 @@ class BarberDetailView(APIView):
         serializer = BarberSerializer(barber)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpRequest  # Import HttpRequest
+
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpRequest  # Import HttpRequest
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # Send verification email
+        self.send_verification_email(request, user)
+
+        return Response({'message': 'User created successfully. Please check your email for verification.'}, status=status.HTTP_201_CREATED)
+
+    def send_verification_email(self, request, user):
+        current_site = get_current_site(request)
+        subject = 'Activate Your Account'
+        message = render_to_string('account_activation_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': account_activation_token.make_token(user),
+        })
+        email = EmailMessage(subject, message, to=[user.email])
+        email.send()
+
+
+def activate_account(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Your account has been activated successfully. You can now login.')
+        return redirect(reverse('login'))  # Redirect to login page after activation
+    else:
+        messages.error(request, 'Invalid activation link.')
+        return redirect(reverse('home'))  # Redirect to home page or any other page
+    

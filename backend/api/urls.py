@@ -36,6 +36,7 @@ urlpatterns = [
     path('barbershop/<int:barbershop_id>/barber/create/', views.BarberCreateView.as_view(), name='barber_create'),
     path('barbershop/<int:barbershop_id>/barbers/', views.BarberListView.as_view(), name='barber_list'),
     path('barbershop/<int:barbershop_id>/barbers/<int:barber_id>/', views.BarberDetailView.as_view(), name='barber-detail'),
+    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
 
 
 ]
