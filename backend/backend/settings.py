@@ -176,8 +176,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_PORT = 587     # Use the port provided by Mailtrap
-EMAIL_HOST_USER = 'e6eb68639e89a4'  # Your Mailtrap username
-EMAIL_HOST_PASSWORD = '1ab43626ca5d6c'  # Your Mailtrap password
-EMAIL_USE_TLS = True  # Use TLS for secure connection
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'e6eb68639e89a4' 
+EMAIL_HOST_PASSWORD = '1ab43626ca5d6c'
+EMAIL_USE_TLS = True  
 EMAIL_USE_SSL = False 

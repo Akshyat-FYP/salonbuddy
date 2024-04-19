@@ -42,21 +42,31 @@ class _LoginPageState extends State<LoginPage> {
       // Extract the role from the payload
       final String role = payload['role'];
 
-      // Navigate based on the role
-      if (role == 'customer') {
+      // Extract the verified status from the payload
+      final bool verified = payload['verified'];
+
+      // Navigate based on the role and verified status
+      if (role == 'customer' && verified == true) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => ChomePage(accessToken: accessToken),
           ),
         );
-      } else if (role == 'barber') {
+      } else if (role == 'barber' && verified == true) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => BHomePage(accessToken: accessToken),
           ),
         );
+        // } else if (role == 'admin' && verified) {
+        //   Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => AHomePage(accessToken: accessToken),
+        //     ),
+        //   );
       } else {
         showDialog(
           context: context,
@@ -77,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
 
-      // After successful login, send device token to backend
+      // After successful login and verification, send device token to backend
       await sendDeviceTokenToBackend(accessToken);
     } else {
       final dynamic responseData = json.decode(response.body);

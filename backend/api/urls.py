@@ -1,11 +1,10 @@
-from django.urls import path, include  # Include the include function
-from rest_framework.routers import DefaultRouter
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from api import views
 
 
 urlpatterns = [
-    path("token/", views.MyTokenObtainedPairView.as_view()),
+    path("token/", views.MyTokenObtainedPairView.as_view(),name='home'),
     path('users/', views.UserListView.as_view(), name='user_list'),
     path('users/<int:id>/', views.UserDetailView.as_view(), name='user_detail'),
     path("token/refresh/", TokenRefreshView.as_view()),
@@ -37,6 +36,8 @@ urlpatterns = [
     path('barbershop/<int:barbershop_id>/barbers/', views.BarberListView.as_view(), name='barber_list'),
     path('barbershop/<int:barbershop_id>/barbers/<int:barber_id>/', views.BarberDetailView.as_view(), name='barber-detail'),
     path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
+    path('reset-password/<uidb64>/<token>/', views.reset_password_confirm, name='reset_password_confirm'),
+    path('reset-password/', views.reset_password, name='reset_password'),
 
 
 ]

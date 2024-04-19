@@ -8,7 +8,7 @@
 <body>
     <p>Hello {{ user.username }},</p>
     <p>Thank you for registering with us. To activate your account, please click the link below:</p>
-    <a href="{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Activate Your Account</a>
+    <a href="http:192.168.10.69:8000/{% url 'activate' uidb64=uid token=token %}">Activate Your Account</a>
     <p>If you didn't register on our website, you can ignore this email.</p>
     <p>Regards,<br> Your Website Team</p>
 </body>

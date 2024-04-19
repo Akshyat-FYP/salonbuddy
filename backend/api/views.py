@@ -1,8 +1,9 @@
-from django.http import JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView,RetrieveAPIView
 from django.shortcuts import render, get_object_or_404
 from api.models import Barber, User, Profile , Barbershop,StyleOfCut,Appointment
+# from backend.backend import settings
 from .Serializer import BarberSerializer, UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer , LoginSerializer,BarbershopSerializer,StyleOfCutSerializer,AppointmentSerializer
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
@@ -27,14 +28,15 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
-from .tokens import account_activation_token
+from .tokens import AccountActivationTokenGenerator, account_activation_token
 from django.utils.http import urlsafe_base64_decode
 from django.shortcuts import redirect
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.urls import reverse
-
-
+# from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+from django.utils.encoding import force_str
 
 class ProfileUpdateAPIView(generics.UpdateAPIView):
     queryset = Profile.objects.all()
@@ -391,6 +393,8 @@ class RegisterView(generics.CreateAPIView):
 
         return Response({'message': 'User created successfully. Please check your email for verification.'}, status=status.HTTP_201_CREATED)
 
+    account_activation_token = AccountActivationTokenGenerator()
+
     def send_verification_email(self, request, user):
         current_site = get_current_site(request)
         subject = 'Activate Your Account'
@@ -403,20 +407,90 @@ class RegisterView(generics.CreateAPIView):
         email = EmailMessage(subject, message, to=[user.email])
         email.send()
 
+account_activation_token = AccountActivationTokenGenerator()
 
 def activate_account(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return HttpResponseBadRequest('Invalid user or token.')
+
+    if account_activation_token.check_token(user, token):
+        # Update the 'verified' field to True
+        user.verified = True
+        user.save()
+        return HttpResponse('Your email has been successfully verified.')
+    else:
+        return HttpResponseBadRequest('Invalid token.')
+
+
+User = get_user_model()
+
+def reset_password_view(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
 
     if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        messages.success(request, 'Your account has been activated successfully. You can now login.')
-        return redirect(reverse('login'))  # Redirect to login page after activation
+        # Render a form to reset password, passing uidb64 and token for the form action
+        return render(request, 'reset_password_form.html', {'uidb64': uidb64, 'token': token})
     else:
-        messages.error(request, 'Invalid activation link.')
-        return redirect(reverse('home'))  # Redirect to home page or any other page
-    
+        messages.error(request, "Invalid or expired password reset link.")
+        return render(request, 'reset_password_link_invalid.html')
+
+def reset_password_confirm(request):
+    if request.method == 'POST':
+        uidb64 = request.POST.get('uidb64')
+        token = request.POST.get('token')
+        password = request.POST.get('password')
+        
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.set_password(password)
+            user.save()
+            messages.success(request, "Your password has been reset successfully!")
+            return redirect('login')  # Redirect to login page or home
+        else:
+            messages.error(request, "Invalid or expired password reset link.")
+            return render(request, 'reset_password_link_invalid.html')
+    return redirect('reset_password')
+
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def reset_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user = get_object_or_404(User, email=email)
+
+        # Generate password reset token
+        token = default_token_generator.make_token(user)
+
+        # Build password reset URL
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        reset_url = f'http://{request.get_host()}/api/reset-password/{uidb64}/{token}/'
+
+        # Send password reset email
+        send_mail(
+            'Password Reset',
+            f'Click the link below to reset your password:\n{reset_url}',
+            'manandharakshyat@gmail.com',  # Replace with your email address
+            [email],
+            fail_silently=False,
+        )
+
+        return JsonResponse({'message': 'Password reset email sent successfully.'})
+
+    else:
+        return JsonResponse({'error': 'Only POST requests are allowed for this endpoint.'}, status=405)

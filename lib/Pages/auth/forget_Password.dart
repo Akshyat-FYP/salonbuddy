@@ -1,7 +1,66 @@
-// forgot_password_page.dart
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class ForgotPasswordPage extends StatelessWidget {
+  final TextEditingController _emailController = TextEditingController();
+
+  Future<void> _sendResetLink(BuildContext context) async {
+    final String apiUrl = 'http://192.168.10.69:8000/api/reset-password/';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {'email': _emailController.text.trim()},
+      );
+
+      if (response.statusCode == 200) {
+        // Password reset link sent successfully
+        // You can show a success message or navigate to another page
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Password Reset Link Sent'),
+              content: Text(
+                  'A password reset link has been sent to ${_emailController.text}.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Password reset link sending failed
+        // You can show an error message to the user
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Failed to Send Reset Link'),
+              content: Text('An error occurred while sending the reset link.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error sending reset link: $e');
+      // Handle any exceptions here
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,6 +90,7 @@ class ForgotPasswordPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             TextFormField(
+              controller: _emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
@@ -38,10 +98,7 @@ class ForgotPasswordPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Add logic to send a password reset email
-                // You can implement your own functionality here
-              },
+              onPressed: () => _sendResetLink(context),
               child: Text('Send Reset Link'),
             ),
           ],

@@ -6,7 +6,7 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'phone', 'address', 'role']
+        fields = ['id', 'username', 'email', 'phone', 'address', 'role','verified']
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,6 +28,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['role'] = user.role
         token['address'] = user.address 
         token['phone'] = user.phone 
+        token['verified']=user.verified
         if device_token:
             token['device_token'] = device_token
         return token
@@ -45,7 +46,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password', 'password2', 'phone', 'address', 'role','verified']
+        fields = ['email', 'username', 'password', 'password2', 'phone', 'address', 'role']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
