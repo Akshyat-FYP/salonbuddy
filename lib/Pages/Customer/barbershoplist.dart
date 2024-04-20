@@ -172,6 +172,11 @@ class _BarbershopListPageState extends State<BarbershopListPage> {
                         color: Colors
                             .grey[700], // Set background color of the card
                         child: ListTile(
+                          leading: Icon(
+                            Icons
+                                .storefront, // Choose an appropriate icon from the available options
+                            color: Colors.white, // Set the icon color
+                          ),
                           title: Text(
                             barbershop['name'],
                             style: TextStyle(

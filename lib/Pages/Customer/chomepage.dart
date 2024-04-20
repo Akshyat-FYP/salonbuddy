@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:salonbuddy/Pages/Customer/C_appointment.dart';
 import 'package:salonbuddy/Pages/Customer/barbershoplist.dart';
-import 'package:salonbuddy/Pages/auth/Profile.dart';
-import 'package:salonbuddy/Pages/auth/loginPage.dart';
+import 'package:salonbuddy/Pages/auth/ProfileCustomer.dart';
 
 class ChomePage extends StatefulWidget {
   final String accessToken;
@@ -30,7 +29,7 @@ class _ChomePageState extends State<ChomePage> {
     _pages = [
       BarbershopListPage(accessToken: widget.accessToken),
       AppointmentsPage(accessToken: widget.accessToken, userId: _userId),
-      ProfilePage(accessToken: widget.accessToken),
+      CProfilePage(accessToken: widget.accessToken),
     ];
   }
 

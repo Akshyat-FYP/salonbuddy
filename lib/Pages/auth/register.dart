@@ -129,8 +129,16 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Registration'),
+        backgroundColor: Colors.black, // Set app bar background color
+        title: Row(
+          children: [
+            Icon(Icons.person, color: Colors.white), // Set icon color
+            SizedBox(width: 8),
+            Text('User Registration', style: TextStyle(color: Colors.white)),
+          ],
+        ),
       ),
+      backgroundColor: Colors.grey[900], // Set background color
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -139,51 +147,87 @@ class _RegisterPageState extends State<RegisterPage> {
             children: [
               TextField(
                 controller: _usernameController,
+                style: TextStyle(color: Colors.white), // Set text color
                 decoration: InputDecoration(
                   labelText: 'Username',
                   errorText: _usernameError,
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _emailController,
+                style: TextStyle(color: Colors.white), // Set text color
                 decoration: InputDecoration(
                   labelText: 'Email',
                   errorText: _emailError,
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
+                style: TextStyle(color: Colors.white), // Set text color
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   errorText: _passwordError,
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _confirmPasswordController,
+                style: TextStyle(color: Colors.white), // Set text color
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
                   errorText: _confirmPasswordError,
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _phoneController,
+                style: TextStyle(color: Colors.white), // Set text color
                 decoration: InputDecoration(
                   labelText: 'Phone',
                   errorText: _phoneError,
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _addressController,
+                style: TextStyle(color: Colors.white), // Set text color
                 decoration: InputDecoration(
                   labelText: 'Address',
                   errorText: _addressError,
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -198,18 +242,32 @@ class _RegisterPageState extends State<RegisterPage> {
                     .map<DropdownMenuItem<String>>(
                       (String value) => DropdownMenuItem<String>(
                         value: value,
-                        child: Text(value),
+                        child: Text(value,
+                            style: TextStyle(
+                                color: const Color.fromARGB(
+                                    255, 0, 0, 0))), // Set text color
                       ),
                     )
                     .toList(),
                 decoration: InputDecoration(
                   labelText: 'Role',
+                  labelStyle: TextStyle(color: Colors.white), // Set label color
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // Set border color
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _register(context),
-                child: Text('Register'),
+                child: Text(
+                  'Register',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple, // Set button color
+                ),
               ),
             ],
           ),

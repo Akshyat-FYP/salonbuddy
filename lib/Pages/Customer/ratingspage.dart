@@ -57,15 +57,32 @@ class _AppointmentRatingPageState extends State<AppointmentRatingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rate Appointment'),
+        title: const Text(
+          'Rate Appointment',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
+      backgroundColor: Colors.grey[900],
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Rate your service',
-                  style: Theme.of(context).textTheme.headline5),
+              Text(
+                'Rate your service',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               RatingBar.builder(
                 initialRating: _currentRating,
                 minRating: 1,
@@ -73,6 +90,7 @@ class _AppointmentRatingPageState extends State<AppointmentRatingPage> {
                 allowHalfRating: true,
                 itemCount: 5,
                 itemSize: 40,
+                unratedColor: Colors.grey[700],
                 itemBuilder: (context, _) => const Icon(
                   Icons.star,
                   color: Colors.amber,
@@ -88,9 +106,16 @@ class _AppointmentRatingPageState extends State<AppointmentRatingPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
                   controller: _commentController,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Enter your comment (optional)',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
                   ),
                   maxLines: 3,
                 ),
@@ -103,6 +128,10 @@ class _AppointmentRatingPageState extends State<AppointmentRatingPage> {
                   Navigator.pop(context);
                 },
                 child: const Text('Submit Rating'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.amber,
+                ),
               ),
             ],
           ),

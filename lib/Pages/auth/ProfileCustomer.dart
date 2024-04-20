@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:salonbuddy/Pages/auth/ProfileEditPage.dart';
+import 'package:salonbuddy/Pages/auth/loginPage.dart'; // Import LoginPage for logout
 
-class ProfilePage extends StatefulWidget {
+class CProfilePage extends StatefulWidget {
   final String accessToken;
 
-  ProfilePage({required this.accessToken});
+  CProfilePage({required this.accessToken});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<CProfilePage> {
   Map<String, dynamic> profileData = {};
   bool isLoading = true;
 
@@ -51,9 +52,33 @@ class _ProfilePageState extends State<ProfilePage> {
     fetchProfileData(widget.accessToken);
   }
 
+  void _logout() {
+    // Implement logout logic here
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            onPressed: _logout,
+          ),
+        ],
+      ),
       backgroundColor: Colors.grey[900],
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -105,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.purple[500],
+                                backgroundColor: Colors.purple[700],
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 20,
                                   vertical: 15,
@@ -119,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
-                                  // fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),

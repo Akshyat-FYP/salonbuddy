@@ -53,7 +53,12 @@ class _StyleOfCutPageState extends State<StyleOfCutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Style of Cut'),
+        title: Text(
+          'Style of Cut',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black,
       ),
       body: Center(
         child: _hasStylesOfCut
@@ -62,6 +67,10 @@ class _StyleOfCutPageState extends State<StyleOfCutPage> {
                   _createDefaultStyles();
                 },
                 child: Text('Create Default Styles'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.purple,
+                ),
               )
             : ListView.builder(
                 itemCount: _stylesOfCut.length,
@@ -71,8 +80,14 @@ class _StyleOfCutPageState extends State<StyleOfCutPage> {
                       double.tryParse(style['price'] ?? '0.0') ?? 0.0;
 
                   return ListTile(
-                    title: Text(style['name']),
-                    subtitle: Text('Price: ${style['price']}'),
+                    title: Text(
+                      style['name'],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Text(
+                      'Price: ${style['price']}',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onTap: () {
                       _navigateToEditStyleOfCutPage(
                         style['id'], // Pass style ID
@@ -97,7 +112,9 @@ class _StyleOfCutPageState extends State<StyleOfCutPage> {
           );
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.purple,
       ),
+      backgroundColor: Colors.grey[900],
     );
   }
 

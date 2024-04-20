@@ -67,7 +67,8 @@ class LoginSerializer(serializers.Serializer):
 class BarbershopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Barbershop
-        fields = ['id', 'user_id', 'name', 'address', 'in_service', 'opening_time', 'closing_time']
+        fields = ['id', 'user_id', 'name', 'address', 'in_service', 'opening_time', 'closing_time', 'image']
+
 
 #style of cut
 class StyleOfCutSerializer(serializers.ModelSerializer):

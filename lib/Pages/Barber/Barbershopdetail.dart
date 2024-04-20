@@ -17,13 +17,25 @@ class BarbershopDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Barbershop Details'),
+        title: Text(
+          'Barbershop Details',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Barbershop Details'),
+            Text(
+              'Barbershop Details',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -38,6 +50,10 @@ class BarbershopDetailsPage extends StatelessWidget {
                 );
               },
               child: Text('Navigate to Style of Cut Page'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.purple,
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -53,6 +69,10 @@ class BarbershopDetailsPage extends StatelessWidget {
                 );
               },
               child: Text('View Appointments'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.purple,
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -68,6 +88,10 @@ class BarbershopDetailsPage extends StatelessWidget {
                 );
               },
               child: Text('Edit Barbershop'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.purple,
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -83,10 +107,15 @@ class BarbershopDetailsPage extends StatelessWidget {
                 );
               },
               child: Text('View Barbers'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.purple,
+              ),
             ),
           ],
         ),
       ),
+      backgroundColor: Colors.grey[900],
     );
   }
 }

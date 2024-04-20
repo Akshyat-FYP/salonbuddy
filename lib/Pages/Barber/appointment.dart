@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:salonbuddy/Pages/Barber/approveappointmentpage.dart';
 import 'package:salonbuddy/Pages/Barber/barbershop_appointmentpage.dart';
 
@@ -34,9 +34,6 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         Uri.parse(apiUrl),
         headers: {'Authorization': 'Bearer ${widget.accessToken}'},
       );
-
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         setState(() {
@@ -87,7 +84,12 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointments'),
+        title: Text(
+          'Appointments',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black,
         actions: [
           IconButton(
             icon: Icon(Icons.calendar_today),
@@ -123,7 +125,10 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
+                return Text(
+                  'Error: ${snapshot.error}',
+                  style: TextStyle(color: Colors.white),
+                );
               } else {
                 final customer = snapshot.data?[0];
                 final barberName = snapshot.data?[1];
@@ -141,10 +146,14 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                     );
                   },
                   child: ListTile(
-                    title: Text('Appointment ID: ${appointment['id']}'),
+                    title: Text(
+                      'Appointment ID: ${appointment['id']}',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     subtitle: Text(
-                        'Date and Time: $formattedDateTime\nCustomer: ${customer['username']}\nBarber: $barberName\nStyle of Cut: $styleOfCut'),
-                    // Add more details as needed
+                      'Date and Time: $formattedDateTime\nCustomer: ${customer['username']}\nBarber: $barberName\nStyle of Cut: $styleOfCut',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 );
               }
@@ -152,6 +161,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           );
         },
       ),
+      backgroundColor: Colors.grey[900],
     );
   }
 }

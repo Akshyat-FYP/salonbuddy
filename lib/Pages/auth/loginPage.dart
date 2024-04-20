@@ -215,7 +215,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text('Login'),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: Colors.blue, // Text color
+                          backgroundColor:
+                              Color.fromARGB(215, 51, 0, 117), // Text color
                           padding: EdgeInsets.symmetric(
                               horizontal: 50, vertical: 15),
                           shape: RoundedRectangleBorder(

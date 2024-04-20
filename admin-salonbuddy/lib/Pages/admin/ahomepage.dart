@@ -12,7 +12,11 @@ class AHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Home Page'),
+        backgroundColor: Colors.black,
+        title: Text(
+          'Admin Home Page',
+          style: TextStyle(color: Colors.white),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -22,6 +26,7 @@ class AHomePage extends StatelessWidget {
               );
             },
             icon: Icon(Icons.logout),
+            color: Colors.white,
           ),
         ],
       ),

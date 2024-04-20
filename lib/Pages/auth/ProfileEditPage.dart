@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +18,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   late TextEditingController _fullNameController;
   late TextEditingController _bioController;
   File? _image;
+  bool _isLoading = false;
+  bool _hasImage = false;
 
   @override
   void initState() {
@@ -40,11 +41,30 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
+        _hasImage = true; // Image selected
       });
     }
   }
 
+  void _clearImage() {
+    setState(() {
+      _image = null;
+      _hasImage = false; // Image cleared
+    });
+  }
+
   Future<void> _updateProfile() async {
+    if (_fullNameController.text.isEmpty || _bioController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Full Name and Bio are required')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     final apiUrl = 'http://192.168.10.69:8000/api/profile/update/';
     final headers = {
       HttpHeaders.authorizationHeader: 'Bearer ${widget.accessToken}',
@@ -63,18 +83,30 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       request.files.add(image);
     }
 
-    var response = await http.Response.fromStream(await request.send());
+    try {
+      var response = await http.Response.fromStream(await request.send());
 
-    if (response.statusCode == 200) {
-      // Profile updated successfully
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Profile updated')));
-      // Navigate back to the previous page
-      Navigator.pop(context);
-    } else {
-      // Failed to update profile
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to update profile')));
+      if (response.statusCode == 200) {
+        // Profile updated successfully
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Profile updated')));
+        // Navigate back to the previous page
+        Navigator.pop(context);
+      } else {
+        // Failed to update profile
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile')),
+        );
+      }
+    } catch (e) {
+      // Error occurred
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -82,14 +114,25 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+        ),
         actions: [
           IconButton(
-            onPressed: _updateProfile,
-            icon: Icon(Icons.save),
+            onPressed: _isLoading ? null : _updateProfile,
+            icon: Icon(Icons.save, color: Colors.white),
           ),
         ],
       ),
+      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -97,22 +140,54 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           children: [
             TextFormField(
               controller: _fullNameController,
-              decoration: InputDecoration(labelText: 'Full Name'),
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Full Name',
+                labelStyle: TextStyle(color: Colors.white),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
             ),
             TextFormField(
               controller: _bioController,
-              decoration: InputDecoration(labelText: 'Bio'),
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Bio',
+                labelStyle: TextStyle(color: Colors.white),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _getImage,
-              child: Text('Choose Image'),
-            ),
-            SizedBox(height: 20),
-            if (_image != null) ...[
-              Image.file(_image!),
-              SizedBox(height: 20),
-            ],
+            _hasImage
+                ? Column(
+                    children: [
+                      Image.file(_image!),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _clearImage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple[700],
+                        ),
+                        child: Text(
+                          'Clear Image',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  )
+                : ElevatedButton(
+                    onPressed: _isLoading ? null : _getImage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple[700],
+                    ),
+                    child: Text(
+                      'Choose Image',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
           ],
         ),
       ),

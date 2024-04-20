@@ -60,8 +60,9 @@ class Barbershop(models.Model):
     name = models.CharField(max_length=100)
     address = models.TextField()
     in_service = models.BooleanField(default=True)  # New field
-    opening_time = models.TimeField(default=datetime.time(9, 0))  # Default opening time is 9:00 AM
-    closing_time = models.TimeField(default=datetime.time(19, 0))  # Default closing time is 7:00 PM
+    opening_time = models.TimeField(default=datetime.time(9, 0)) 
+    closing_time = models.TimeField(default=datetime.time(19, 0)) 
+    image = models.ImageField(upload_to="barbershop_images", blank=True, null=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

@@ -136,6 +136,7 @@ def list_barbershops(request):
     queryset = Barbershop.objects.all()
     serializer = BarbershopSerializer(queryset, many=True)
     return Response(serializer.data)
+
 @api_view(['PUT','PATCH'])
 def update_barbershop(request, pk):
     barbershop = get_object_or_404(Barbershop, pk=pk)
@@ -159,7 +160,7 @@ def get_barbershop_by_user(request, user_id):
         return Response(serializer.data)
     except Barbershop.DoesNotExist:
         return Response({'error': 'Barbershop not found'}, status=404)
-
+    
 class BarbershopDetailView(RetrieveAPIView):
     serializer_class = BarbershopSerializer
 

@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:salonbuddy/Pages/Barber/bhomepage.dart';
 
 class CreateBarbershopPage extends StatefulWidget {
   final String accessToken;
-
   CreateBarbershopPage({required this.accessToken});
 
   @override
@@ -16,35 +19,55 @@ class _CreateBarbershopPageState extends State<CreateBarbershopPage> {
   final TextEditingController addressController = TextEditingController();
   TimeOfDay? openingTime;
   TimeOfDay? closingTime;
+  File? _image;
 
   Future<void> createBarbershop(BuildContext context) async {
-    final int userId = extractUserIdFromToken(widget.accessToken);
-    final String apiUrl =
-        'http://192.168.10.69:8000/api/barbershops/create/$userId/';
+    try {
+      final int userId = extractUserIdFromToken(widget.accessToken);
+      final String apiUrl =
+          'http://192.168.10.69:8000/api/barbershops/create/$userId/';
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': 'Bearer ${widget.accessToken}',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'name': nameController.text,
-        'address': addressController.text,
-        'opening_time': openingTime != null
-            ? '${openingTime!.hour}:${openingTime!.minute}'
-            : null,
-        'closing_time': closingTime != null
-            ? '${closingTime!.hour}:${closingTime!.minute}'
-            : null,
-        'user_id': userId, // Pass user ID as a separate field
-      }),
-    );
+      final uri = Uri.parse(apiUrl);
 
-    if (response.statusCode == 201) {
-      // Barbershop created successfully
-      Navigator.pop(context, true); // Pass true back to indicate success
-    } else {
+      final request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer ${widget.accessToken}';
+
+      request.fields['name'] = nameController.text;
+      request.fields['address'] = addressController.text;
+      request.fields['opening_time'] = openingTime != null
+          ? '${openingTime!.hour}:${openingTime!.minute}'
+          : '';
+      request.fields['closing_time'] = closingTime != null
+          ? '${closingTime!.hour}:${closingTime!.minute}'
+          : '';
+      request.fields['user_id'] = userId.toString();
+
+      if (_image != null) {
+        final file = await http.MultipartFile.fromPath('image', _image!.path);
+        request.files.add(file);
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 201) {
+        // Barbershop created successfully
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BHomePage(
+              accessToken: widget.accessToken,
+            ),
+          ),
+        );
+      } else {
+        // Show error message if failed
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to create barbershop'),
+        ));
+      }
+    } catch (e) {
+      print('Error creating barbershop: $e');
       // Show error message if failed
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to create barbershop'),
@@ -96,66 +119,151 @@ class _CreateBarbershopPageState extends State<CreateBarbershopPage> {
     }
   }
 
+  Future<void> _getImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  void _clearImage() {
+    setState(() {
+      _image = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Barbershop'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: addressController,
-              decoration: InputDecoration(labelText: 'Address'),
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Text('Opening Time:'),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _selectOpeningTime(context),
-                  child: Text(
-                    openingTime != null
-                        ? '${openingTime!.hour}:${openingTime!.minute}'
-                        : 'Select Time',
-                  ),
+        title: Text('Create New Barbershop',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BHomePage(
+                  accessToken: widget.accessToken,
                 ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Text('Closing Time:'),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _selectClosingTime(context),
-                  child: Text(
-                    closingTime != null
-                        ? '${closingTime!.hour}:${closingTime!.minute}'
-                        : 'Select Time',
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                createBarbershop(context);
-              },
-              child: Text('Create Barbershop'),
-            ),
-          ],
+              ),
+            );
+          },
         ),
       ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                ),
+                style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  labelText: 'Address',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                ),
+                style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Text('Opening Time:', style: TextStyle(color: Colors.white)),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () => _selectOpeningTime(context),
+                    child: Text(
+                      openingTime != null
+                          ? '${openingTime!.hour}:${openingTime!.minute}'
+                          : 'Select Time',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple[500],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Text('Closing Time:  ',
+                      style: TextStyle(color: Colors.white)),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () => _selectClosingTime(context),
+                    child: Text(
+                      closingTime != null
+                          ? '${closingTime!.hour}:${closingTime!.minute}'
+                          : 'Select Time',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple[500],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              _image == null
+                  ? ElevatedButton(
+                      onPressed: _getImage,
+                      child: Text('Choose Image',
+                          style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple[500],
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Image.file(_image!),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: _clearImage,
+                          child: Text('Clear Image',
+                              style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purple[500],
+                          ),
+                        ),
+                      ],
+                    ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  createBarbershop(context);
+                },
+                child: Text('Create Barbershop',
+                    style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: Colors.grey[900],
     );
   }
 }

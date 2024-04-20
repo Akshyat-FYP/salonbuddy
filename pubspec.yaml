@@ -73,6 +73,7 @@ flutter:
     - assests/images/
     - assests/images/
     - backend/user_images/
+    - backend/barbershop_images/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

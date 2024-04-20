@@ -66,15 +66,25 @@ class _ApproveAppointmentPageState extends State<ApproveAppointmentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Verify Appointment'),
+        title:
+            Text('Verify Appointment', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black, // Set app bar background color
+        iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: isLoading
-            ? CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: verifyAppointment,
-                child: Text('Verify Appointment'),
-              ),
+      body: Container(
+        color: Colors.grey[900], // Set background color
+        child: Center(
+          child: isLoading
+              ? CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: verifyAppointment,
+                  child: Text('Verify Appointment',
+                      style: TextStyle(color: Colors.white)), // Set text color
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple, // Set button color
+                  ),
+                ),
+        ),
       ),
     );
   }

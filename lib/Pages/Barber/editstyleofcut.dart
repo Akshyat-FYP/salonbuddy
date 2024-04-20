@@ -45,8 +45,10 @@ class _EditStyleOfCutPageState extends State<EditStyleOfCutPage> {
 
       if (response.statusCode == 200) {
         final style = json.decode(response.body);
-        _nameController.text = style['name'];
-        _priceController.text = style['price'].toString();
+        setState(() {
+          _nameController.text = style['name'];
+          _priceController.text = style['price'].toString();
+        });
       } else {
         throw Exception('Failed to load style of cut');
       }
@@ -130,21 +132,42 @@ class _EditStyleOfCutPageState extends State<EditStyleOfCutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Style of Cut'),
+        title: Text('Edit Style of Cut', style: TextStyle(color: Colors.white)),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black, // Set app bar background color
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.grey[900], // Set background color
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Style Name'),
+              style: TextStyle(color: Colors.white), // Set text color
+              decoration: InputDecoration(
+                labelText: 'Style Name',
+                labelStyle: TextStyle(color: Colors.white), // Set label color
+                border: OutlineInputBorder(
+                  // Add border
+                  borderSide:
+                      BorderSide(color: Colors.white), // Set border color
+                ),
+              ),
             ),
             SizedBox(height: 20),
             TextFormField(
               controller: _priceController,
-              decoration: InputDecoration(labelText: 'Price'),
+              style: TextStyle(color: Colors.white), // Set text color
+              decoration: InputDecoration(
+                labelText: 'Price',
+                labelStyle: TextStyle(color: Colors.white), // Set label color
+                border: OutlineInputBorder(
+                  // Add border
+                  borderSide:
+                      BorderSide(color: Colors.white), // Set border color
+                ),
+              ),
               keyboardType: TextInputType.number,
             ),
             SizedBox(height: 20),
@@ -153,13 +176,18 @@ class _EditStyleOfCutPageState extends State<EditStyleOfCutPage> {
               children: [
                 ElevatedButton(
                   onPressed: _updateStyleOfCut,
-                  child: Text('Save'),
+                  child: Text('Save',
+                      style:
+                          TextStyle(color: const Color.fromARGB(255, 0, 0, 0))),
                 ),
                 ElevatedButton(
                   onPressed: _deleteStyleOfCut,
-                  child: Text('Delete'),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.red[600],
                   ).merge(
                     ButtonStyle(
                       backgroundColor:

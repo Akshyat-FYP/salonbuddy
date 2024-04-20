@@ -83,7 +83,7 @@ class _BHomePageState extends State<BHomePage> {
   }
 
   Future<void> navigateToCreateBarbershopPage(BuildContext context) async {
-    await Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => CreateBarbershopPage(
@@ -91,12 +91,11 @@ class _BHomePageState extends State<BHomePage> {
         ),
       ),
     );
-    fetchBarbershops(); // Refresh the list after creating a new barbershop
   }
 
   Future<void> navigateToBarbershopDetailsPage(
       BuildContext context, dynamic barbershop) async {
-    await Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BarbershopDetailsPage(
@@ -110,8 +109,35 @@ class _BHomePageState extends State<BHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _getSelectedWidget(),
+      appBar: AppBar(
+        title: Text(
+          'Barberboss',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            color: Colors.white,
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginPage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        color: Colors.grey[900],
+        child: _getSelectedWidget(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.grey[500],
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
@@ -137,9 +163,7 @@ class _BHomePageState extends State<BHomePage> {
       case 0:
         return _buildBarbershopsWidget();
       case 1:
-        return CreateBarbershopPage(
-          accessToken: widget.accessToken,
-        );
+        return SizedBox.shrink();
       case 2:
         return ProfilePage(accessToken: widget.accessToken);
       default:
@@ -147,65 +171,72 @@ class _BHomePageState extends State<BHomePage> {
     }
   }
 
-  Widget _buildCreateBarbershopWidget() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () {
-            navigateToCreateBarbershopPage(context);
-          },
-          child: Text('Create Barbershop'),
-        ),
-      ],
-    );
-  }
-
   Widget _buildBarbershopsWidget() {
     return ListView.builder(
       itemCount: barbershops.length,
       itemBuilder: (context, index) {
         final barbershop = barbershops[index];
-        return ListTile(
-          title: Text(barbershop['name']),
-          subtitle: Text(barbershop['address']),
-          onTap: () {
-            navigateToBarbershopDetailsPage(context, barbershop);
-          },
-          onLongPress: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Delete Barbershop'),
-                  content:
-                      Text('Are you sure you want to delete this barbershop?'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        deleteBarbershop(barbershop['id'].toString());
-                      },
-                      child: Text('Delete'),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+        return Card(
+          color: Colors
+              .grey[850], // Slightly lighter than the background for contrast
+          margin: const EdgeInsets.all(8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: ListTile(
+            title: Text(barbershop['name'],
+                style: TextStyle(color: Colors.white, fontSize: 18)),
+            subtitle: Text(barbershop['address'],
+                style: TextStyle(color: Colors.white70)),
+            onTap: () => navigateToBarbershopDetailsPage(context, barbershop),
+            onLongPress: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Delete Barbershop'),
+                    content: Text(
+                        'Are you sure you want to delete this barbershop?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text('Cancel',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          deleteBarbershop(barbershop['id'].toString());
+                        },
+                        child:
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                    backgroundColor: Colors.black,
+                    titleTextStyle:
+                        TextStyle(color: Colors.white, fontSize: 20),
+                    contentTextStyle: TextStyle(color: Colors.white70),
+                  );
+                },
+              );
+            },
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            leading: Icon(Icons.store, color: Colors.white, size: 30),
+            trailing: Icon(Icons.arrow_forward_ios, color: Colors.white70),
+          ),
         );
       },
     );
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index != 1) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    } else {
+      navigateToCreateBarbershopPage(context);
+    }
   }
 }

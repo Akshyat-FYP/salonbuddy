@@ -62,59 +62,81 @@ class _BarberAppointmentsPageState extends State<BarberAppointmentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Barber Appointments'),
+        title:
+            Text('Barber Appointments', style: TextStyle(color: Colors.white)),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black, // Set app bar background color
         actions: [
           IconButton(
-            icon: Icon(Icons.print),
+            icon: Icon(Icons.print, color: Colors.white), // Set icon color
             onPressed: generatePdfAndView,
           ),
         ],
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : error != null
-              ? Center(child: Text(error!))
-              : appointments.isEmpty
-                  ? Center(child: Text('No appointments found.'))
-                  : ListView.builder(
-                      itemCount: appointments.length,
-                      itemBuilder: (context, index) {
-                        final appointment = appointments[index];
-                        return ListTile(
-                          title: Text('Appointment ID: ${appointment['id']}'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Date: ${appointment['date_time']}'),
-                              FutureBuilder<Map<String, dynamic>>(
-                                future: fetchBarberName(appointment['barber']),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                          ConnectionState.waiting ||
-                                      snapshot.connectionState ==
-                                          ConnectionState.none) {
-                                    return Text('Barber: Loading...');
-                                  }
-                                  if (snapshot.hasError) {
-                                    return Text('Barber: Error');
-                                  }
-                                  return Text(
-                                      'Barber: ${snapshot.data?['name'] ?? 'N/A'}');
-                                },
-                              ),
-                              Text(
-                                  'Style of Cut: ${appointment['style_of_cut'] ?? 'None'}'),
-                              Text('Verified: ${appointment['verified']}'),
-                              Text(
-                                  'Service Rated: ${appointment['service_rated']}'),
-                              Text('Rating: ${appointment['rating']}'),
-                              Text(
-                                  'Rating Comment: ${appointment['rating_comment'] ?? 'None'}'),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+      body: Container(
+        color: Colors.grey[900], // Set background color
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : error != null
+                ? Center(
+                    child: Text(error!, style: TextStyle(color: Colors.white)))
+                : appointments.isEmpty
+                    ? Center(
+                        child: Text('No appointments found.',
+                            style: TextStyle(color: Colors.white)))
+                    : ListView.builder(
+                        itemCount: appointments.length,
+                        itemBuilder: (context, index) {
+                          final appointment = appointments[index];
+                          return ListTile(
+                            title: Text('Appointment ID: ${appointment['id']}',
+                                style: TextStyle(color: Colors.white)),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Date: ${appointment['date_time']}',
+                                    style: TextStyle(color: Colors.white)),
+                                FutureBuilder<Map<String, dynamic>>(
+                                  future:
+                                      fetchBarberName(appointment['barber']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.waiting ||
+                                        snapshot.connectionState ==
+                                            ConnectionState.none) {
+                                      return Text('Barber: Loading...',
+                                          style:
+                                              TextStyle(color: Colors.white));
+                                    }
+                                    if (snapshot.hasError) {
+                                      return Text('Barber: Error',
+                                          style:
+                                              TextStyle(color: Colors.white));
+                                    }
+                                    return Text(
+                                        'Barber: ${snapshot.data?['name'] ?? 'N/A'}',
+                                        style: TextStyle(color: Colors.white));
+                                  },
+                                ),
+                                Text(
+                                    'Style of Cut: ${appointment['style_of_cut'] ?? 'None'}',
+                                    style: TextStyle(color: Colors.white)),
+                                Text('Verified: ${appointment['verified']}',
+                                    style: TextStyle(color: Colors.white)),
+                                Text(
+                                    'Service Rated: ${appointment['service_rated']}',
+                                    style: TextStyle(color: Colors.white)),
+                                Text('Rating: ${appointment['rating']}',
+                                    style: TextStyle(color: Colors.white)),
+                                Text(
+                                    'Rating Comment: ${appointment['rating_comment'] ?? 'None'}',
+                                    style: TextStyle(color: Colors.white)),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+      ),
     );
   }
 

@@ -64,12 +64,19 @@ class _CreateBarberPageState extends State<CreateBarberPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Barber'),
+        title: Text(
+          'Create Barber',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black,
       ),
+      backgroundColor: Colors.grey[900],
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!))
+              ? Center(
+                  child: Text(_error!, style: TextStyle(color: Colors.white)))
               : Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Form(
@@ -79,7 +86,17 @@ class _CreateBarberPageState extends State<CreateBarberPage> {
                       children: [
                         TextFormField(
                           controller: _nameController,
-                          decoration: InputDecoration(labelText: 'Name'),
+                          decoration: InputDecoration(
+                            labelText: 'Name',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: TextStyle(color: Colors.white),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a name';
@@ -89,8 +106,17 @@ class _CreateBarberPageState extends State<CreateBarberPage> {
                         ),
                         TextFormField(
                           controller: _phoneNumberController,
-                          decoration:
-                              InputDecoration(labelText: 'Phone Number'),
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: TextStyle(color: Colors.white),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a phone number';
@@ -100,7 +126,17 @@ class _CreateBarberPageState extends State<CreateBarberPage> {
                         ),
                         TextFormField(
                           controller: _addressController,
-                          decoration: InputDecoration(labelText: 'Address'),
+                          decoration: InputDecoration(
+                            labelText: 'Address',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: TextStyle(color: Colors.white),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter an address';

@@ -23,12 +23,15 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
   List<dynamic> stylesOfCut = [];
   int? selectedBarberId;
   List<dynamic> barbers = [];
+  String? openingTime;
+  String? closingTime;
 
   @override
   void initState() {
     super.initState();
     fetchStylesOfCut();
     fetchBarbers();
+    fetchOpeningHours();
   }
 
   Future<void> fetchBarbers() async {
@@ -72,6 +75,32 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       }
     } catch (e) {
       print('Error fetching styles of cut: $e');
+      // Handle error
+    }
+  }
+
+  Future<void> fetchOpeningHours() async {
+    try {
+      final apiUrl =
+          'http://192.168.10.69:8000/api/barbershops/${widget.barbershopId}/';
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {'Authorization': 'Bearer ${widget.accessToken}'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          openingTime = data[
+              'opening_time']; // Assuming 'opening_time' exists in the response
+          closingTime = data[
+              'closing_time']; // Assuming 'closing_time' exists in the response
+        });
+      } else {
+        throw Exception('Failed to load opening hours');
+      }
+    } catch (e) {
+      print('Error fetching opening hours: $e');
       // Handle error
     }
   }
@@ -155,99 +184,126 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Appointment'),
+        backgroundColor: Colors.grey[700], // Darker shade for the AppBar
       ),
+      backgroundColor: Colors.grey[900], // Dark background color
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            InkWell(
-              onTap: () {
-                _selectDate(context);
-              },
-              child: InputDecorator(
+        child: SingleChildScrollView(
+          // Use SingleChildScrollView to handle overflow when keyboard appears
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              InkWell(
+                onTap: () {
+                  _selectDate(context);
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Date',
+                    hintText: 'Select Date',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(selectedDate.toString().split(' ')[0],
+                          style: TextStyle(color: Colors.white)),
+                      Icon(Icons.arrow_drop_down, color: Colors.white),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              InkWell(
+                onTap: () {
+                  _selectTime(context);
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Time',
+                    hintText: 'Select Time',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(selectedTime.format(context),
+                          style: TextStyle(color: Colors.white)),
+                      Icon(Icons.arrow_drop_down, color: Colors.white),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              DropdownButtonFormField(
                 decoration: InputDecoration(
-                  labelText: 'Date',
-                  hintText: 'Select Date',
+                  labelText: 'Style of Cut',
+                  hintText: 'Select Style of Cut',
                   border: OutlineInputBorder(),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(selectedDate.toString().split(' ')[0]),
-                    Icon(Icons.arrow_drop_down),
-                  ],
-                ),
+                items: stylesOfCut.map((style) {
+                  return DropdownMenuItem(
+                    child: Text(style['name'],
+                        style: TextStyle(color: Colors.white)),
+                    value: style['id'].toString(),
+                  );
+                }).toList(),
+                onChanged: (String? value) {
+                  setState(() {
+                    selectedStyleOfCut = value;
+                  });
+                },
+                value: selectedStyleOfCut,
+                dropdownColor: Colors.grey[800], // Darker dropdown background
               ),
-            ),
-            SizedBox(height: 16.0),
-            InkWell(
-              onTap: () {
-                _selectTime(context);
-              },
-              child: InputDecorator(
+              SizedBox(height: 16.0),
+              DropdownButtonFormField<int>(
                 decoration: InputDecoration(
-                  labelText: 'Time',
-                  hintText: 'Select Time',
+                  labelText: 'Barber',
+                  hintText: 'Select Barber',
                   border: OutlineInputBorder(),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(selectedTime.format(context)),
-                    Icon(Icons.arrow_drop_down),
-                  ],
+                items: barbers.map((barber) {
+                  return DropdownMenuItem<int>(
+                    child: Text(barber['name'],
+                        style: TextStyle(color: Colors.white)),
+                    value: barber['id'],
+                  );
+                }).toList(),
+                onChanged: (int? value) {
+                  setState(() {
+                    selectedBarberId = value;
+                  });
+                },
+                value: selectedBarberId,
+                dropdownColor: Colors.grey[800], // Darker dropdown background
+              ),
+              SizedBox(height: 16.0),
+              openingTime != null && closingTime != null
+                  ? Text(
+                      'Opening Hours: $openingTime - $closingTime',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  : CircularProgressIndicator(),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {
+                  createAppointment();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Theme.of(context).primaryColor, // Default blue color
+                ),
+                child: Text(
+                  'Create Appointment',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            DropdownButtonFormField<int>(
-              value: selectedBarberId,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedBarberId = newValue;
-                });
-              },
-              items: barbers.map<DropdownMenuItem<int>>((barber) {
-                return DropdownMenuItem<int>(
-                  value: barber['id'],
-                  child: Text(barber['name']),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: 'Barber',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            DropdownButtonFormField<String>(
-              value: selectedStyleOfCut,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedStyleOfCut = newValue;
-                });
-              },
-              items: stylesOfCut.map<DropdownMenuItem<String>>((style) {
-                return DropdownMenuItem<String>(
-                  value: style['id'].toString(), // Use ID as the value
-                  child: Text(style['name']),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: 'Style of Cut',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                createAppointment();
-              },
-              child: Text('Create Appointment'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
