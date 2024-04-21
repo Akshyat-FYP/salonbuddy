@@ -32,6 +32,7 @@ urlpatterns = [
     path('update-device-token/', views.UpdateDeviceTokenView.as_view(), name='update_device_token'),
     path('appointments/<int:pk>/generate-pdf/', views.AppointmentDetailView.as_view(), name='generate_appointment_pdf'),
     path('barber-appointments/<int:barbershop_id>/verified/', views.BarberAppointmentsView.as_view(), name='barber_appointments'),
+    path('barber-appointments/<int:barbershop_id>/not_verified/', views.BarberUnverifiedAppointmentsView.as_view(), name='barber_appointments_notverified'),
     path('barbershop/<int:barbershop_id>/barber/create/', views.BarberCreateView.as_view(), name='barber_create'),
     path('barbershop/<int:barbershop_id>/barbers/', views.BarberListView.as_view(), name='barber_list'),
     path('barbershop/<int:barbershop_id>/barbers/<int:barber_id>/', views.BarberDetailView.as_view(), name='barber-detail'),

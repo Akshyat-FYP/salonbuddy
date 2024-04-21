@@ -64,17 +64,20 @@ class _ApproveAppointmentPageState extends State<ApproveAppointmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Verify Appointment'),
-      ),
-      body: Center(
-        child: isLoading
-            ? CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: verifyAppointment,
-                child: Text('Verify Appointment'),
-              ),
+    return Theme(
+      data: ThemeData.dark(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Verify Appointment'),
+        ),
+        body: Center(
+          child: isLoading
+              ? CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: verifyAppointment,
+                  child: Text('Verify Appointment'),
+                ),
+        ),
       ),
     );
   }

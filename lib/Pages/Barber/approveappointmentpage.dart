@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:salonbuddy/Pages/Barber/appointment.dart';
 
 class ApproveAppointmentPage extends StatefulWidget {
   final int barbershopId;
@@ -39,7 +40,17 @@ class _ApproveAppointmentPageState extends State<ApproveAppointmentPage> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pop(context, true); // Assuming success leads to pop
+        // If the update is successful, navigate to the Appointments Page
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AppointmentsPage(
+              barbershopId: widget.barbershopId,
+              accessToken: widget.accessToken,
+            ),
+          ),
+          (Route<dynamic> route) => false, // No back navigation to this page
+        );
       } else {
         // Handle non-200 status codes
         ScaffoldMessenger.of(context).showSnackBar(

@@ -60,61 +60,65 @@ class _BarberAppointmentsPageState extends State<BarberAppointmentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Barber Appointments'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.print),
-            onPressed: generatePdfAndView,
-          ),
-        ],
+    return Theme(
+      data: ThemeData.dark(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Barber Appointments'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.print),
+              onPressed: generatePdfAndView,
+            ),
+          ],
+        ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : error != null
+                ? Center(child: Text(error!))
+                : appointments.isEmpty
+                    ? Center(child: Text('No appointments found.'))
+                    : ListView.builder(
+                        itemCount: appointments.length,
+                        itemBuilder: (context, index) {
+                          final appointment = appointments[index];
+                          return ListTile(
+                            title: Text('Appointment ID: ${appointment['id']}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Date: ${appointment['date_time']}'),
+                                FutureBuilder<Map<String, dynamic>>(
+                                  future:
+                                      fetchBarberName(appointment['barber']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.waiting ||
+                                        snapshot.connectionState ==
+                                            ConnectionState.none) {
+                                      return Text('Barber: Loading...');
+                                    }
+                                    if (snapshot.hasError) {
+                                      return Text('Barber: Error');
+                                    }
+                                    return Text(
+                                        'Barber: ${snapshot.data?['name'] ?? 'N/A'}');
+                                  },
+                                ),
+                                Text(
+                                    'Style of Cut: ${appointment['style_of_cut'] ?? 'None'}'),
+                                Text('Verified: ${appointment['verified']}'),
+                                Text(
+                                    'Service Rated: ${appointment['service_rated']}'),
+                                Text('Rating: ${appointment['rating']}'),
+                                Text(
+                                    'Rating Comment: ${appointment['rating_comment'] ?? 'None'}'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : error != null
-              ? Center(child: Text(error!))
-              : appointments.isEmpty
-                  ? Center(child: Text('No appointments found.'))
-                  : ListView.builder(
-                      itemCount: appointments.length,
-                      itemBuilder: (context, index) {
-                        final appointment = appointments[index];
-                        return ListTile(
-                          title: Text('Appointment ID: ${appointment['id']}'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Date: ${appointment['date_time']}'),
-                              FutureBuilder<Map<String, dynamic>>(
-                                future: fetchBarberName(appointment['barber']),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                          ConnectionState.waiting ||
-                                      snapshot.connectionState ==
-                                          ConnectionState.none) {
-                                    return Text('Barber: Loading...');
-                                  }
-                                  if (snapshot.hasError) {
-                                    return Text('Barber: Error');
-                                  }
-                                  return Text(
-                                      'Barber: ${snapshot.data?['name'] ?? 'N/A'}');
-                                },
-                              ),
-                              Text(
-                                  'Style of Cut: ${appointment['style_of_cut'] ?? 'None'}'),
-                              Text('Verified: ${appointment['verified']}'),
-                              Text(
-                                  'Service Rated: ${appointment['service_rated']}'),
-                              Text('Rating: ${appointment['rating']}'),
-                              Text(
-                                  'Rating Comment: ${appointment['rating_comment'] ?? 'None'}'),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
     );
   }
 

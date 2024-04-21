@@ -97,50 +97,53 @@ class _UpdateBarbershopPageState extends State<UpdateBarbershopPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Update Barbershop'),
-      ),
-      body: isLoading // Show loading indicator while fetching data
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(labelText: 'Name'),
-                  ),
-                  SizedBox(height: 16.0),
-                  TextField(
-                    controller: addressController,
-                    decoration: InputDecoration(labelText: 'Address'),
-                  ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: inService,
-                        onChanged: (newValue) {
-                          setState(() {
-                            inService = newValue!;
-                          });
-                        },
-                      ),
-                      Text('In Service'),
-                    ],
-                  ),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      updateBarbershop();
-                    },
-                    child: Text('Update Barbershop'),
-                  ),
-                ],
+    return Theme(
+      data: ThemeData.dark(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Update Barbershop'),
+        ),
+        body: isLoading // Show loading indicator while fetching data
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(labelText: 'Name'),
+                    ),
+                    SizedBox(height: 16.0),
+                    TextField(
+                      controller: addressController,
+                      decoration: InputDecoration(labelText: 'Address'),
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: inService,
+                          onChanged: (newValue) {
+                            setState(() {
+                              inService = newValue!;
+                            });
+                          },
+                        ),
+                        Text('In Service'),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        updateBarbershop();
+                      },
+                      child: Text('Update Barbershop'),
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

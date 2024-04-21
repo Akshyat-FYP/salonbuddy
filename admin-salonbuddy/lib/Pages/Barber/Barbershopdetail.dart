@@ -14,61 +14,64 @@ class BarbershopDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Barbershop Details'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Barbershop Details'),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StyleOfCutPage(
-                      barbershopId: barbershopId,
-                      accessToken: accessToken,
+    return Theme(
+      data: ThemeData.dark(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Barbershop Details'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Barbershop Details'),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StyleOfCutPage(
+                        barbershopId: barbershopId,
+                        accessToken: accessToken,
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: Text('Navigate to Style of Cut Page'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BarberAppointmentsPage(
-                      barbershopId: barbershopId,
-                      accessToken: accessToken,
+                  );
+                },
+                child: Text('Navigate to Style of Cut Page'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BarberAppointmentsPage(
+                        barbershopId: barbershopId,
+                        accessToken: accessToken,
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: Text('View Appointments'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UpdateBarbershopPage(
-                      barbershopId: barbershopId,
-                      accessToken: accessToken,
+                  );
+                },
+                child: Text('View Appointments'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UpdateBarbershopPage(
+                        barbershopId: barbershopId,
+                        accessToken: accessToken,
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: Text('Edit Barbershop'),
-            ),
-          ],
+                  );
+                },
+                child: Text('Edit Barbershop'),
+              ),
+            ],
+          ),
         ),
       ),
     );

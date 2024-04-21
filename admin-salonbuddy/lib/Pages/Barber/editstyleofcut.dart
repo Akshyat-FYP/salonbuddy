@@ -128,50 +128,52 @@ class _EditStyleOfCutPageState extends State<EditStyleOfCutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Style of Cut'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Style Name'),
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: _priceController,
-              decoration: InputDecoration(labelText: 'Price'),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Theme(
+        data: ThemeData.dark(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Edit Style of Cut'),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ElevatedButton(
-                  onPressed: _updateStyleOfCut,
-                  child: Text('Save'),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(labelText: 'Style Name'),
                 ),
-                ElevatedButton(
-                  onPressed: _deleteStyleOfCut,
-                  child: Text('Delete'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ).merge(
-                    ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.red),
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _priceController,
+                  decoration: InputDecoration(labelText: 'Price'),
+                  keyboardType: TextInputType.number,
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _updateStyleOfCut,
+                      child: Text('Save'),
                     ),
-                  ),
+                    ElevatedButton(
+                      onPressed: _deleteStyleOfCut,
+                      child: Text('Delete'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ).merge(
+                        ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.red),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }

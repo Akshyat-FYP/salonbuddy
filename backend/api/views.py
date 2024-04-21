@@ -211,6 +211,14 @@ class BarberAppointmentsView(ListAPIView):
     def get_queryset(self):
         barbershop_id = self.kwargs['barbershop_id']
         return Appointment.objects.filter(barbershop_id=barbershop_id, verified=True)
+
+class BarberUnverifiedAppointmentsView(ListAPIView):
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        barbershop_id = self.kwargs['barbershop_id']
+        return Appointment.objects.filter(barbershop_id=barbershop_id, verified=False)    
     
 class AppointmentListView(generics.ListAPIView):
     serializer_class = AppointmentSerializer
