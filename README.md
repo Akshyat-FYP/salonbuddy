@@ -1,16 +1,3 @@
-# salonbuddy
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+This Project is the Solution to the Problem personally faced by me and many of my friends where we have to wait excruciatio amount of time to get a haircut 
+this project solves the problem by arranging appointments for the barbershop and for the customer it allows them to set appointments and then gives them notification 15 mins before the appoitnment
+the project was made with the help of flutter for front end , django for backend, postgresql for database it is fully functional and works as intended
